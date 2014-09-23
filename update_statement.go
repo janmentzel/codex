@@ -1,4 +1,3 @@
-// Package nodes provides nodes to use in codex AST's.
 package codex
 
 // UpdateStatement is the base node for SQL Update Statements.

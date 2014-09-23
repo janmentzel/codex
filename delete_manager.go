@@ -1,7 +1,4 @@
-// Package managers provides AST managers for the codex package.
 package codex
-
-import ()
 
 // DeleteManager manages a tree that compiles to a SQL delete statement.
 type DeleteManager struct {

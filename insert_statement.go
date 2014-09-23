@@ -1,4 +1,3 @@
-// Package nodes provides nodes to use in codex AST's.
 package codex
 
 // InsertStatement is the base node for SQL Insert Statements.

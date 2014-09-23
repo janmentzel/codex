@@ -1,7 +1,6 @@
-// Package managers provides AST managers for the codex package.
 package codex
 
-// import ()
+//
 
 // // AlterManager manages a tree that compiles to SQL for create and alter statement.
 // type AlterManager struct {

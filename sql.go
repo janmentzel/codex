@@ -1,4 +1,3 @@
-// Package sql provides common SQL constants for the codex package.
 package codex
 
 type T_Constraint uint8

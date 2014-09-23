@@ -1,7 +1,4 @@
-// Package managers provides AST managers for the codex package.
 package codex
-
-import ()
 
 // Accessor is a type def of a function that returns an AttributeNode
 type Accessor func(interface{}) *AttributeNode

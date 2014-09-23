@@ -1,4 +1,3 @@
-// Package nodes provides nodes to use in codex AST's.
 package codex
 
 // Grouping node is a Unary node struct

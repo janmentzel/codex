@@ -1,4 +1,3 @@
-// Package visitors provides AST visitors for the codex package.
 package codex
 
 type VisitorInterface interface {

@@ -1,4 +1,3 @@
-// Package nodes provides nodes to use in codex AST's.
 package codex
 
 // // AlterStatement is the base node for SQL Create and Alter Statements.

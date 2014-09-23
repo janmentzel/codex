@@ -1,4 +1,3 @@
-// Package nodes provides nodes to use in codex AST's.
 package codex
 
 // DeleteStatement is the base node for SQL Delete Statements.

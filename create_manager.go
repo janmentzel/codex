@@ -1,7 +1,6 @@
-// Package managers provides AST managers for the codex package.
 package codex
 
-// import ()
+//
 
 // type CreateManager struct {
 // 	Tree    *CreateStatementNode

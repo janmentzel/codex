@@ -1,7 +1,4 @@
-// Package managers provides AST managers for the codex package.
 package codex
-
-import ()
 
 // UpdateManager manages a tree that compiles to a SQL update statement.
 type UpdateManager struct {

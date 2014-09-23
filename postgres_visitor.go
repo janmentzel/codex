@@ -1,11 +1,8 @@
-// Package visitors provides AST visitors for the codex package.
 package codex
 
 import (
 	"fmt"
 )
-
-import ()
 
 type PostgresVisitor struct {
 	*ToSqlVisitor

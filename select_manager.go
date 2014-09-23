@@ -1,4 +1,3 @@
-// Package managers provides AST managers for the codex package.
 package codex
 
 // SelectManager manages a tree that compiles to a SQL select statement.
