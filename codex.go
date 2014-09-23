@@ -1,6 +1,13 @@
 // Package codex provides a Relational Algebra for PostgreSQL and MySQL. Based on Arel (Ruby on Rails).
 package codex
 
+type adapter uint8
+
+const (
+	MYSQL adapter = iota + 1
+	POSTGRES
+)
+
 // ToggleDebugMode toggles debugger variable for managers package.
 func ToggleDebugMode() {
 	DEBUG = !DEBUG

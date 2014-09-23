@@ -3,7 +3,7 @@ package codex
 // UpdateManager manages a tree that compiles to a SQL update statement.
 type UpdateManager struct {
 	Tree    *UpdateStatementNode // The AST for the SQL UPDATE statement.
-	adapter interface{}          // The SQL Engine.
+	adapter adapter              // The SQL Engine.
 }
 
 // Set appends to the trees Values slice a list of UnqualifiedColumnNodes
@@ -43,17 +43,13 @@ func (self *UpdateManager) Limit(expr interface{}) *UpdateManager {
 }
 
 // Sets the SQL Adapter.
-func (self *UpdateManager) SetAdapter(adapter interface{}) *UpdateManager {
+func (self *UpdateManager) SetAdapter(adapter adapter) *UpdateManager {
 	self.adapter = adapter
 	return self
 }
 
 // ToSql calls a visitor's Accept method based on the manager's SQL adapter.
 func (self *UpdateManager) ToSql() (string, []interface{}, error) {
-	if nil == self.adapter {
-		self.adapter = "to_sql"
-	}
-
 	return VisitorFor(self.adapter).Accept(self.Tree)
 }
 

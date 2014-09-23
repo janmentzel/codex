@@ -4,7 +4,7 @@ package codex
 type SelectManager struct {
 	Tree    *SelectStatementNode // The AST for the SQL SELECT statement.
 	Context *SelectCoreNode      // Reference to the Core the manager is curretly operating on.
-	adapter interface{}          // The SQL adapter.
+	adapter adapter              // The SQL adapter.
 }
 
 // // Clone returns
@@ -216,7 +216,7 @@ func (self *SelectManager) Except(manager *SelectManager) *SelectManager {
 }
 
 // Sets the SQL Adapter.
-func (self *SelectManager) SetAdapter(adapter interface{}) *SelectManager {
+func (self *SelectManager) SetAdapter(adapter adapter) *SelectManager {
 	self.adapter = adapter
 	return self
 }
@@ -227,10 +227,6 @@ func (self *SelectManager) ToSql() (string, []interface{}, error) {
 		if 0 == len(core.Cols) {
 			core.Cols = append(core.Cols, Attribute(Star(), core.Relation))
 		}
-	}
-
-	if nil == self.adapter {
-		self.adapter = "to_sql"
 	}
 
 	return VisitorFor(self.adapter).Accept(self.Tree)

@@ -1,11 +1,11 @@
 package codex
 
 // VisitorFor returns a AST visitor for the adapter argument.
-func VisitorFor(adapter interface{}) VisitorInterface {
+func VisitorFor(adapter adapter) VisitorInterface {
 	switch adapter {
-	case "mysql":
+	case MYSQL:
 		return NewMySqlVisitor()
-	case "postgres":
+	case POSTGRES:
 		return NewPostgresVisitor()
 	default:
 		return NewToSqlVisitor()
