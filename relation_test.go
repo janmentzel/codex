@@ -29,7 +29,7 @@ func TestRelationSelect(t *testing.T) {
 	assert.Empty(t, args)
 }
 
-func TestRelationWhere(t *testing.T) {
+func TestRelationWhereWithNode(t *testing.T) {
 	rel := Relation("foo")
 	m := rel.Where(rel.Col("id").Eq(1))
 
@@ -37,6 +37,16 @@ func TestRelationWhere(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, `SELECT "foo".* FROM "foo" WHERE ("foo"."id"=?)`, sql)
 	assert.Equal(t, []interface{}{1}, args)
+}
+
+func TestRelationWhereWithSqlAndArgs(t *testing.T) {
+	rel := Relation("foo")
+	m := rel.Where("a = ? AND b = ?", 22, "bar")
+
+	sql, args, err := m.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "foo".* FROM "foo" WHERE (a = ? AND b = ?)`, sql)
+	assert.Equal(t, []interface{}{22, "bar"}, args)
 }
 
 func TestRelationInnerJoin(t *testing.T) {

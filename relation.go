@@ -32,8 +32,9 @@ func (r *RelationNode) Select(cols ...interface{}) *SelectManager {
 }
 
 // Where Returns a pointer to a SelectManager with the initial filter provided.
-func (r *RelationNode) Where(cond interface{}) *SelectManager {
-	return Selection(r).Where(cond)
+// see SelectManager.Where()
+func (r *RelationNode) Where(expr interface{}, args ...interface{}) *SelectManager {
+	return Selection(r).Where(expr, args...)
 }
 
 // Returns a pointer to a SelectManager with an initial InnerJoinNode.
