@@ -18,17 +18,3 @@ func Table(name string) Accessor {
 		return Attribute(name, relation)
 	}
 }
-
-// // CreateTable returns an AlterManager from the managers package
-// // for generating SQL to create new tables.
-// func CreateTable(name string) *CreateManager {
-// 	relation := Relation(name)
-// 	return Creation(relation)
-// }
-
-// // CreateTable returns an AlterManager from the managers package
-// // for generating SQL to alter existing tables.
-// func AlterTable(name string) *AlterManager {
-// 	relation := Relation(name)
-// 	return Alteration(relation)
-// }

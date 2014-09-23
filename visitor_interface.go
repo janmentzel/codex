@@ -52,20 +52,11 @@ type VisitorInterface interface {
 	VisitExistingColumn(*ExistingColumnNode, VisitorInterface) error
 
 	// Nary node visitors.
-	//VisitConstraint(*ConstraintNode, VisitorInterface) error
-	//VisitNotNull(*NotNullNode, VisitorInterface) error
-	//VisitUnique(*UniqueNode, VisitorInterface) error
-	//VisitPrimaryKey(*PrimaryKeyNode, VisitorInterface) error
-	//VisitForeignKey(*ForeignKeyNode, VisitorInterface) error
-	//VisitCheck(*CheckNode, VisitorInterface) error
-	//VisitDefault(*DefaultNode, VisitorInterface) error
 	VisitSelectCore(*SelectCoreNode, VisitorInterface) error
 	VisitSelectStatement(*SelectStatementNode, VisitorInterface) error
 	VisitInsertStatement(*InsertStatementNode, VisitorInterface) error
 	VisitUpdateStatement(*UpdateStatementNode, VisitorInterface) error
 	VisitDeleteStatement(*DeleteStatementNode, VisitorInterface) error
-	//VisitAlterStatement(*AlterStatementNode, VisitorInterface) error
-	//VisitCreateStatement(*CreateStatementNode, VisitorInterface) error
 
 	// Function node visitors.
 	VisitCount(*CountNode, VisitorInterface) error

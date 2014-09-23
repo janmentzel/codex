@@ -484,48 +484,6 @@ func TestToSqlVisitorUnqualifiedColumn(t *testing.T) {
 	assert.Empty(t, args)
 }
 
-//// TODO Table alteration not needed
-// func TestToSqlVisitorVisitNotNull(t *testing.T) {
-// 	nnull := NotNull([]interface{}{"column"})
-// 	expected := `ALTER 'column' SET NOT NULL`
-// 	if got, _ := NewToSqlVisitor().Accept(nnull); expected != got {
-// 		t.Errorf("TestVisitNotNull was expected to return %s, got %s", expected, got)
-// 	}
-// }
-
-// func TestToSqlVisitorVisitUnique(t *testing.T) {
-// 	unique := Unique([]interface{}{"column"})
-// 	expected := `ADD UNIQUE('column')`
-// 	if got, _ := NewToSqlVisitor().Accept(unique); expected != got {
-// 		t.Errorf("TestVisitUnique was expected to return %s, got %s", expected, got)
-// 	}
-// }
-
-// func TestToSqlVisitorVisitPrimaryKey(t *testing.T) {
-// 	pkey := PrimaryKey([]interface{}{"column"})
-// 	expected := `ADD PRIMARY KEY('column')`
-// 	if got, _ := NewToSqlVisitor().Accept(pkey); expected != got {
-// 		t.Errorf("TestVisitPrimaryKey was expected to return %s, got %s", expected, got)
-// 	}
-// }
-
-// func TestToSqlVisitorVisitForeignKey(t *testing.T) {
-// 	fkey := ForeignKey([]interface{}{UnqualifiedColumn("column")})
-// 	fkey.Options = append(fkey.Options, Relation("table"))
-// 	expected := `ADD FOREIGN KEY("column") REFERENCES "table"`
-// 	if got, _ := NewToSqlVisitor().Accept(fkey); expected != got {
-// 		t.Errorf("TestVisitForeignKey was expected to return %s, got %s", expected, got)
-// 	}
-// }
-
-// func TestToSqlVisitorVisitDefault(t *testing.T) {
-// 	def := Default([]interface{}{"column"})
-// 	expected := `ALTER 'column' SET DEFAULT`
-// 	if got, _ := NewToSqlVisitor().Accept(def); expected != got {
-// 		t.Errorf("TestVisitDefault was expected to return %s, got %s", expected, got)
-// 	}
-// }
-
 func TestToSqlVisitorVisitString(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept("test")
 	assert.Nil(t, err)
