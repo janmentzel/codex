@@ -14,8 +14,10 @@ type PostgresVisitor struct {
 
 var _ VisitorInterface = (*PostgresVisitor)(nil)
 
+// creates PostgresVisitor with PostgresCollector
 func NewPostgresVisitor() *PostgresVisitor {
-	return &PostgresVisitor{NewToSqlVisitor(), 0}
+
+	return &PostgresVisitor{&ToSqlVisitor{NewPostgresCollector()}, 0}
 }
 
 func (v *PostgresVisitor) Accept(o interface{}) (string, []interface{}, error) {
