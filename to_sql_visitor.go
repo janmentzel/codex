@@ -32,13 +32,14 @@ const (
 )
 
 type ToSqlVisitor struct {
-	*Collector
+	CollectorInterface
 }
 
 var _ VisitorInterface = (*ToSqlVisitor)(nil)
 
+// creates ToSqlVisitor with standard Collector
 func NewToSqlVisitor() *ToSqlVisitor {
-	return &ToSqlVisitor{&Collector{}}
+	return &ToSqlVisitor{NewCollector()}
 }
 
 func (v *ToSqlVisitor) Accept(o interface{}) (string, []interface{}, error) {
