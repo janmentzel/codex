@@ -9,7 +9,7 @@ func TestToSqlVisitorAccept(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(nil)
 	assert.NotNil(t, err)
 	assert.Equal(t, "", sql)
-	assert.Equal(t, []interface{}(nil), args)
+	assert.Empty(t, args)
 }
 
 func TestToSqlVisitorGrouping(t *testing.T) {
@@ -107,28 +107,28 @@ func TestToSqlVisitorUnaliasedRelation(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(Relation("table"))
 	assert.Nil(t, err)
 	assert.Equal(t, `"table"`, sql)
-	assert.Equal(t, []interface{}(nil), args)
+	assert.Empty(t, args)
 }
 
 func TestToSqlVisitorColumn(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(Column("column"))
 	assert.Nil(t, err)
 	assert.Equal(t, `"column"`, sql)
-	assert.Equal(t, []interface{}(nil), args)
+	assert.Empty(t, args)
 }
 
 func TestToSqlVisitorUnaliasedAttribute(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(Attribute(Column("column"), Relation("table")))
 	assert.Nil(t, err)
 	assert.Equal(t, `"table"."column"`, sql)
-	assert.Equal(t, []interface{}(nil), args)
+	assert.Empty(t, args)
 }
 
 func TestToSqlVisitorJoinSource(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(JoinSource(Relation("table")))
 	assert.Nil(t, err)
 	assert.Equal(t, `"table"`, sql)
-	assert.Equal(t, []interface{}(nil), args)
+	assert.Empty(t, args)
 }
 
 func TestToSqlVisitorExtensiveJoinSource(t *testing.T) {
@@ -149,14 +149,14 @@ func TestToSqlVisitorExtensiveJoinSource(t *testing.T) {
 // 	sql, args, err := NewToSqlVisitor().Accept(Count("id"))
 // 	assert.Nil(t, err)
 // 	assert.Equal(t, `COUNT("id")`, sql)
-// 	assert.Equal(t, []interface{}(nil), args)
+// 	assert.Empty(t, args)
 // }
 
 func TestToSqlVisitorCountCol(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(Count(Column("id")))
 	assert.Nil(t, err)
 	assert.Equal(t, `COUNT("id")`, sql)
-	assert.Equal(t, []interface{}(nil), args)
+	assert.Empty(t, args)
 }
 
 func TestToSqlVisitorCountInt(t *testing.T) {
@@ -170,257 +170,321 @@ func TestToSqlVisitorCountEmpty(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(Count())
 	assert.Nil(t, err)
 	assert.Equal(t, `COUNT(*)`, sql)
-	assert.Equal(t, []interface{}(nil), args)
+	assert.Empty(t, args)
 }
 
-// func TestToSqlVisitorSum(t *testing.T) {
-// 	sum := Sum(1)
-// 	expected := "SUM(1)"
-// 	if got, _ := NewToSqlVisitor().Accept(sum); expected != got {
-// 		t.Errorf("TestSum was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorSumInt(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Sum(1))
+	assert.Nil(t, err)
+	assert.Equal(t, `SUM(?)`, sql)
+	assert.Equal(t, []interface{}{1}, args)
+}
 
-// func TestToSqlVisitorAverage(t *testing.T) {
-// 	avg := Average(1)
-// 	expected := "AVG(1)"
-// 	if got, _ := NewToSqlVisitor().Accept(avg); expected != got {
-// 		t.Errorf("TestAverage was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorSumCol(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Sum(Column("amount")))
+	assert.Nil(t, err)
+	assert.Equal(t, `SUM("amount")`, sql)
+	assert.Empty(t, args)
+}
 
-// func TestToSqlVisitorMinimum(t *testing.T) {
-// 	min := Minimum(1)
-// 	expected := "MIN(1)"
-// 	if got, _ := NewToSqlVisitor().Accept(min); expected != got {
-// 		t.Errorf("TestMinimum was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorAverageInt(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Average(1))
+	assert.Nil(t, err)
+	assert.Equal(t, `AVG(?)`, sql)
+	assert.Equal(t, []interface{}{1}, args)
+}
 
-// func TestToSqlVisitorMaximum(t *testing.T) {
-// 	max := Maximum(1)
-// 	expected := "MAX(1)"
-// 	if got, _ := NewToSqlVisitor().Accept(max); expected != got {
-// 		t.Errorf("TestMaximum was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorAverageCol(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Average(Column("amount")))
+	assert.Nil(t, err)
+	assert.Equal(t, `AVG("amount")`, sql)
+	assert.Empty(t, args)
+}
 
-// func TestToSqlVisitorExtensiveFunction(t *testing.T) {
-// 	function := Sum(1).Or(Count(2).And(Average(3)))
-// 	expected := "(SUM(1) OR (COUNT(2) AND AVG(3)))"
-// 	if got, _ := NewToSqlVisitor().Accept(function); expected != got {
-// 		t.Errorf("TestExtensiveFunction was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorMinimumInt(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Minimum(1))
+	assert.Nil(t, err)
+	assert.Equal(t, `MIN(?)`, sql)
+	assert.Equal(t, []interface{}{1}, args)
+}
 
-// func TestToSqlVisitorLimit(t *testing.T) {
-// 	limit := Limit(1)
-// 	expected := "LIMIT 1"
-// 	if got, _ := NewToSqlVisitor().Accept(limit); expected != got {
-// 		t.Errorf("TestLimit was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorMinimumCol(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Minimum(Column("amount")))
+	assert.Nil(t, err)
+	assert.Equal(t, `MIN("amount")`, sql)
+	assert.Empty(t, args)
+}
 
-// func TestToSqlVisitorOffset(t *testing.T) {
-// 	offset := Offset(1)
-// 	expected := "OFFSET 1"
-// 	if got, _ := NewToSqlVisitor().Accept(offset); expected != got {
-// 		t.Errorf("TestOffset was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorMaximumInt(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Maximum(1))
+	assert.Nil(t, err)
+	assert.Equal(t, `MAX(?)`, sql)
+	assert.Equal(t, []interface{}{1}, args)
+}
 
-// func TestToSqlVisitorHaving(t *testing.T) {
-// 	having := Having(1)
-// 	expected := "HAVING 1"
-// 	if got, _ := NewToSqlVisitor().Accept(having); expected != got {
-// 		t.Errorf("TestHaving was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorMaximumCol(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Maximum(Column("amount")))
+	assert.Nil(t, err)
+	assert.Equal(t, `MAX("amount")`, sql)
+	assert.Empty(t, args)
+}
 
-// func TestToSqlVisitorOn(t *testing.T) {
-// 	on := On(1)
-// 	expected := "ON 1"
-// 	if got, _ := NewToSqlVisitor().Accept(on); expected != got {
-// 		t.Errorf("TestOn was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorExtensiveFunctionInt(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Sum(1).Or(Count(2).And(Average(3))))
+	assert.Nil(t, err)
+	assert.Equal(t, `(SUM(?) OR (COUNT(?) AND AVG(?)))`, sql)
+	assert.Equal(t, []interface{}{1, 2, 3}, args)
+}
 
-// func TestToSqlVisitorAscending(t *testing.T) {
-// 	asc := Ascending(1)
-// 	expected := "1 ASC"
-// 	if got, _ := NewToSqlVisitor().Accept(asc); expected != got {
-// 		t.Errorf("TestAscending was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorExtensiveFunctionCol(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Sum(Column("amount")).Or(Count(Column("id")).And(Average(Column("volume")))))
+	assert.Nil(t, err)
+	assert.Equal(t, `(SUM("amount") OR (COUNT("id") AND AVG("volume")))`, sql)
+	assert.Empty(t, args)
+}
 
-// func TestToSqlVisitorDescending(t *testing.T) {
-// 	asc := Descending(1)
-// 	expected := "1 DESC"
-// 	if got, _ := NewToSqlVisitor().Accept(asc); expected != got {
-// 		t.Errorf("TestDescending was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorExtensiveFunctionLiteral(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Sum(Literal(`COALESCE("name", 1, 0)`)))
+	assert.Nil(t, err)
+	assert.Equal(t, `SUM(COALESCE("name", 1, 0))`, sql)
+	assert.Empty(t, args)
+}
 
-// func TestToSqlVisitorInnerJoin(t *testing.T) {
-// 	join := InnerJoin(1, nil)
-// 	expected := "INNER JOIN 1"
-// 	if got, _ := NewToSqlVisitor().Accept(join); expected != got {
-// 		t.Errorf("TestInnerJoin was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorLimit(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Limit(10))
+	assert.Nil(t, err)
+	assert.Equal(t, `LIMIT ?`, sql)
+	assert.Equal(t, []interface{}{10}, args)
+}
 
-// func TestToSqlVisitorOuterJoin(t *testing.T) {
-// 	join := OuterJoin(1, 2)
-// 	expected := "LEFT OUTER JOIN 1 2"
-// 	if got, _ := NewToSqlVisitor().Accept(join); expected != got {
-// 		t.Errorf("TestOuterJoin was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorOffset(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Offset(1000))
+	assert.Nil(t, err)
+	assert.Equal(t, `OFFSET ?`, sql)
+	assert.Equal(t, []interface{}{1000}, args)
+}
 
-// func TestToSqlVisitorSelectCore(t *testing.T) {
-// 	relation := Relation("table")
-// 	core := SelectCore(relation)
-// 	expected := `SELECT FROM "table"`
-// 	if got, _ := NewToSqlVisitor().Accept(core); expected != got {
-// 		t.Errorf("TestSelectCore was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorHaving(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Having(1))
+	assert.Nil(t, err)
+	assert.Equal(t, `HAVING ?`, sql)
+	assert.Equal(t, []interface{}{1}, args)
+}
 
-// func TestToSqlVisitorSelectCoreExtensive(t *testing.T) {
-// 	relation := Relation("table")
-// 	core := SelectCore(relation)
-// 	core.Cols = append(core.Cols, 1, 2)
-// 	core.Wheres = append(core.Wheres, 3, 4)
-// 	core.Source.Right = append(core.Source.Right, InnerJoin(5, nil))
-// 	expected := `SELECT 1, 2 FROM "table" INNER JOIN 5 WHERE 3 AND 4`
-// 	if got, _ := NewToSqlVisitor().Accept(core); expected != got {
-// 		t.Errorf("TestSelectCoreExtensive was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorOnInt(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(On(1))
+	assert.Nil(t, err)
+	assert.Equal(t, `ON ?`, sql)
+	assert.Equal(t, []interface{}{1}, args)
+}
 
-// func TestToSqlVisitorSelectStatement(t *testing.T) {
-// 	relation := Relation("table")
-// 	stmt := SelectStatement(relation)
-// 	expected := `SELECT FROM "table"`
-// 	if got, _ := NewToSqlVisitor().Accept(stmt); expected != got {
-// 		t.Errorf("TestSelectStatement was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorOnLiteral(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(On(Literal(`users.id = projects.user_id`)))
+	assert.Nil(t, err)
+	assert.Equal(t, `ON users.id = projects.user_id`, sql)
+	assert.Empty(t, args)
+}
 
-// func TestToSqlVisitorUnion(t *testing.T) {
-// 	relationOne := Relation("table_one")
-// 	relationTwo := Relation("table_two")
-// 	relationThree := Relation("table_three")
-// 	one := SelectStatement(relationOne)
-// 	two := SelectStatement(relationTwo)
-// 	three := SelectStatement(relationThree)
-// 	one.Combinator = Union(one, two)
-// 	two.Combinator = Union(two, three)
-// 	expected := `(SELECT FROM "table_one" UNION (SELECT FROM "table_two" UNION SELECT FROM "table_three"))`
-// 	if got, _ := NewToSqlVisitor().Accept(one); expected != got {
-// 		t.Errorf("TestUnion was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorAscending(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Ascending(Column("date")))
+	assert.Nil(t, err)
+	assert.Equal(t, `"date" ASC`, sql)
+	assert.Empty(t, args)
+}
 
-// func TestToSqlVisitorIntersect(t *testing.T) {
-// 	relationOne := Relation("table_one")
-// 	relationTwo := Relation("table_two")
-// 	relationThree := Relation("table_three")
-// 	one := SelectStatement(relationOne)
-// 	two := SelectStatement(relationTwo)
-// 	three := SelectStatement(relationThree)
-// 	one.Combinator = Intersect(one, two)
-// 	two.Combinator = Intersect(two, three)
-// 	expected := `(SELECT FROM "table_one" INTERSECT (SELECT FROM "table_two" INTERSECT SELECT FROM "table_three"))`
-// 	if got, _ := NewToSqlVisitor().Accept(one); expected != got {
-// 		t.Errorf("TestUnion was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorDescending(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Descending(Column("date")))
+	assert.Nil(t, err)
+	assert.Equal(t, `"date" DESC`, sql)
+	assert.Empty(t, args)
+}
 
-// func TestToSqlVisitorExcept(t *testing.T) {
-// 	relationOne := Relation("table_one")
-// 	relationTwo := Relation("table_two")
-// 	relationThree := Relation("table_three")
-// 	one := SelectStatement(relationOne)
-// 	two := SelectStatement(relationTwo)
-// 	three := SelectStatement(relationThree)
-// 	one.Combinator = Except(one, two)
-// 	two.Combinator = Except(two, three)
-// 	expected := `(SELECT FROM "table_one" EXCEPT (SELECT FROM "table_two" EXCEPT SELECT FROM "table_three"))`
-// 	if got, _ := NewToSqlVisitor().Accept(one); expected != got {
-// 		t.Errorf("TestUnion was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorInnerJoin(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(InnerJoin(Relation("foo"), nil))
+	assert.Nil(t, err)
+	assert.Equal(t, `INNER JOIN "foo"`, sql)
+	assert.Empty(t, args)
+}
 
-// func TestToSqlVisitorInsertStatement(t *testing.T) {
-// 	relation := Relation("table")
-// 	stmt := InsertStatement(relation)
-// 	expected := `INSERT INTO "table" `
-// 	if got, _ := NewToSqlVisitor().Accept(stmt); expected != got {
-// 		t.Errorf("TestInsertStatement was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorInnerJoinWithOn(t *testing.T) {
+	foo := Relation("foo")
+	bar := Relation("bar")
+	sql, args, err := NewToSqlVisitor().Accept(InnerJoin(foo, On(foo.Col("id").Eq(bar.Col("foo_id")))))
+	assert.Nil(t, err)
+	assert.Equal(t, `INNER JOIN "foo" ON "foo"."id"="bar"."foo_id"`, sql)
+	assert.Empty(t, args)
+}
 
-// func TestToSqlVisitorUpdateStatement(t *testing.T) {
-// 	relation := Relation("table")
-// 	stmt := UpdateStatement(relation)
-// 	expected := `UPDATE "table" `
-// 	if got, _ := NewToSqlVisitor().Accept(stmt); expected != got {
-// 		t.Errorf("TestUpdateStatement was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorOuterJoinWithLiteral(t *testing.T) {
+	foo := Relation("foo")
+	sql, args, err := NewToSqlVisitor().Accept(OuterJoin(foo, On(Literal("foo.id = bar.foo_id"))))
+	assert.Nil(t, err)
+	assert.Equal(t, `LEFT OUTER JOIN "foo" ON foo.id = bar.foo_id`, sql)
+	assert.Empty(t, args)
+}
 
-// func TestToSqlVisitorDeleteStatement(t *testing.T) {
-// 	relation := Relation("table")
-// 	stmt := DeleteStatement(relation)
-// 	expected := `DELETE FROM "table" `
-// 	if got, _ := NewToSqlVisitor().Accept(stmt); expected != got {
-// 		t.Errorf("TestDeleteStatement was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorSelectCore(t *testing.T) {
+	foo := Relation("foo")
+	sql, args, err := NewToSqlVisitor().Accept(SelectCore(foo))
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT * FROM "foo"`, sql)
+	assert.Empty(t, args)
+}
 
-// func TestToSqlVisitorAssignment(t *testing.T) {
-// 	assignment := Assignment(1, 2)
-// 	expected := "1 = 2"
-// 	if got, _ := NewToSqlVisitor().Accept(assignment); expected != got {
-// 		t.Errorf("TestAssignment was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlRelationSelect(t *testing.T) {
+	bar := Relation("bar")
+	sql, args, err := Relation("foo").Select("id", Column("company"), bar.Col("name")).ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "foo"."id","company","bar"."name" FROM "foo"`, sql)
+	assert.Empty(t, args)
+}
 
-// func TestToSqlVisitorLiteral(t *testing.T) {
-// 	number := Literal(1)
-// 	str := Literal("1")
-// 	n, _ := NewToSqlVisitor().Accept(number)
-// 	s, _ := NewToSqlVisitor().Accept(str)
-// 	if n != s {
-// 		t.Errorf("TestLiteral was expected to return the same result, got %s and %s", n, s)
-// 	}
-// }
+func TestToSqlVisitorSelectCoreExtensive(t *testing.T) {
+	foo := Relation("foo")
+	bar := Relation("bar")
+	core := SelectCore(foo)
+	core.Cols = append(core.Cols, Column("id"), Column("name"))
+	core.Wheres = append(core.Wheres, Equal(foo.Col("id"), 1), NotEqual(foo.Col("name"), nil))
+	core.Source.Right = append(core.Source.Right, InnerJoin(bar, Literal("ON bar.id=foo.bar_id")))
 
-// func TestToSqlVisitorStar(t *testing.T) {
-// 	star := Star()
-// 	result, _ := NewToSqlVisitor().Accept(star)
-// 	if "*" != result {
-// 		t.Errorf("TestStar was expected to return *, got %s", result)
-// 	}
-// }
+	sql, args, err := NewToSqlVisitor().Accept(core)
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "id","name" FROM "foo" INNER JOIN "bar" ON bar.id=foo.bar_id WHERE "foo"."id"=? AND "foo"."name" IS NOT NULL`, sql)
+	assert.Equal(t, []interface{}{1}, args)
+}
 
-// func TestToSqlVisitorBinding(t *testing.T) {
-// 	binding := Binding()
-// 	result, _ := NewToSqlVisitor().Accept(binding)
-// 	if "?" != result {
-// 		t.Errorf("TestStar was expected to return ?, got %s", result)
-// 	}
-// }
+func TestToSqlVisitorSelectStatement(t *testing.T) {
+	relation := Relation("table")
+	stmt := SelectStatement(relation)
 
-// func TestToSqlVisitorUnqualifiedColumn(t *testing.T) {
-// 	column := UnqualifiedColumn("column")
-// 	expected := `"column"`
-// 	if got, _ := NewToSqlVisitor().Accept(column); expected != got {
-// 		t.Errorf("TestUnqualifiedColumn was expected to return %s, got %s", expected, got)
-// 	}
-// }
+	sql, args, err := NewToSqlVisitor().Accept(stmt)
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT * FROM "table"`, sql)
+	assert.Empty(t, args)
+}
 
+func TestToSqlVisitorUnion(t *testing.T) {
+	relationOne := Relation("table_one")
+	relationTwo := Relation("table_two")
+	relationThree := Relation("table_three")
+	one := SelectStatement(relationOne)
+	two := SelectStatement(relationTwo)
+	three := SelectStatement(relationThree)
+	one.Combinator = Union(one, two)
+	two.Combinator = Union(two, three)
+
+	sql, args, err := NewToSqlVisitor().Accept(one)
+	assert.Nil(t, err)
+	assert.Equal(t, `(SELECT * FROM "table_one" UNION (SELECT * FROM "table_two" UNION SELECT * FROM "table_three"))`, sql)
+	assert.Empty(t, args)
+}
+
+func TestToSqlVisitorIntersect(t *testing.T) {
+	relationOne := Relation("table_one")
+	relationTwo := Relation("table_two")
+	relationThree := Relation("table_three")
+	one := SelectStatement(relationOne)
+	two := SelectStatement(relationTwo)
+	three := SelectStatement(relationThree)
+	one.Combinator = Intersect(one, two)
+	two.Combinator = Intersect(two, three)
+
+	sql, args, err := NewToSqlVisitor().Accept(one)
+	assert.Nil(t, err)
+	assert.Equal(t, `(SELECT * FROM "table_one" INTERSECT (SELECT * FROM "table_two" INTERSECT SELECT * FROM "table_three"))`, sql)
+	assert.Empty(t, args)
+}
+
+func TestToSqlVisitorExcept(t *testing.T) {
+	relationOne := Relation("table_one")
+	relationTwo := Relation("table_two")
+	relationThree := Relation("table_three")
+	one := SelectStatement(relationOne)
+	two := SelectStatement(relationTwo)
+	three := SelectStatement(relationThree)
+	one.Combinator = Except(one, two)
+	two.Combinator = Except(two, three)
+
+	sql, args, err := NewToSqlVisitor().Accept(one)
+	assert.Nil(t, err)
+	assert.Equal(t, `(SELECT * FROM "table_one" EXCEPT (SELECT * FROM "table_two" EXCEPT SELECT * FROM "table_three"))`, sql)
+	assert.Empty(t, args)
+}
+
+func TestToSqlVisitorInsertStatement(t *testing.T) {
+	relation := Relation("table")
+	stmt := InsertStatement(relation)
+
+	sql, args, err := NewToSqlVisitor().Accept(stmt)
+	assert.Nil(t, err)
+	assert.Equal(t, `INSERT INTO "table" `, sql)
+	assert.Empty(t, args)
+}
+
+func TestToSqlVisitorUpdateStatement(t *testing.T) {
+	relation := Relation("table")
+	stmt := UpdateStatement(relation)
+
+	sql, args, err := NewToSqlVisitor().Accept(stmt)
+	assert.Nil(t, err)
+	assert.Equal(t, `UPDATE "table" `, sql)
+	assert.Empty(t, args)
+}
+
+func TestToSqlVisitorDeleteStatement(t *testing.T) {
+	relation := Relation("table")
+	stmt := DeleteStatement(relation)
+
+	sql, args, err := NewToSqlVisitor().Accept(stmt)
+	assert.Nil(t, err)
+	assert.Equal(t, `DELETE FROM "table" `, sql)
+	assert.Empty(t, args)
+}
+
+func TestToSqlVisitorAssignment(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Assignment(Column("a"), 2))
+	assert.Nil(t, err)
+	assert.Equal(t, `"a"=?`, sql)
+	assert.Equal(t, []interface{}{2}, args)
+}
+
+func TestToSqlVisitorLiteralNoArgs(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Literal("id IS NOT NULL"))
+	assert.Nil(t, err)
+	assert.Equal(t, `id IS NOT NULL`, sql)
+	assert.Empty(t, args)
+}
+
+func TestToSqlVisitorLiteralTwoArgs(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Literal("id = ? AND name like ?", 1, "Hans%"))
+	assert.Nil(t, err)
+	assert.Equal(t, `id = ? AND name like ?`, sql)
+	assert.Equal(t, []interface{}{1, "Hans%"}, args)
+}
+
+func TestToSqlVisitorStar(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Star())
+	assert.Nil(t, err)
+	assert.Equal(t, `*`, sql)
+	assert.Empty(t, args)
+}
+
+// TODO maybe useless?
+func TestToSqlVisitorBinding(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Binding())
+	assert.Nil(t, err)
+	assert.Equal(t, `?`, sql)
+	assert.Empty(t, args)
+}
+
+func TestToSqlVisitorUnqualifiedColumn(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(UnqualifiedColumn("id"))
+	assert.Nil(t, err)
+	assert.Equal(t, `"id"`, sql)
+	assert.Empty(t, args)
+}
+
+//// TODO Table alteration not needed
 // func TestToSqlVisitorVisitNotNull(t *testing.T) {
 // 	nnull := NotNull([]interface{}{"column"})
 // 	expected := `ALTER 'column' SET NOT NULL`
@@ -462,30 +526,30 @@ func TestToSqlVisitorCountEmpty(t *testing.T) {
 // 	}
 // }
 
-// func TestToSqlVisitorVisitString(t *testing.T) {
-// 	value, expected := `test`, `'test'`
-// 	if got, _ := NewToSqlVisitor().Accept(value); expected != got {
-// 		t.Errorf("TestVisitString was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorVisitString(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept("test")
+	assert.Nil(t, err)
+	assert.Equal(t, `?`, sql)
+	assert.Equal(t, []interface{}{"test"}, args)
+}
 
-// func TestToSqlVisitorVisitInteger(t *testing.T) {
-// 	value, expected := 0, `0`
-// 	if got, _ := NewToSqlVisitor().Accept(value); expected != got {
-// 		t.Errorf("TestVisitInteger was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorVisitInteger(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(0)
+	assert.Nil(t, err)
+	assert.Equal(t, `?`, sql)
+	assert.Equal(t, []interface{}{0}, args)
+}
 
-// func TestToSqlVisitorVisitFloat(t *testing.T) {
-// 	value, expected := 0.25, `0.25`
-// 	if got, _ := NewToSqlVisitor().Accept(value); expected != got {
-// 		t.Errorf("TestVisitFloat was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorVisitFloat(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(0.25)
+	assert.Nil(t, err)
+	assert.Equal(t, `?`, sql)
+	assert.Equal(t, []interface{}{0.25}, args)
+}
 
-// func TestToSqlVisitorVisitBool(t *testing.T) {
-// 	value, expected := true, `'true'`
-// 	if got, _ := NewToSqlVisitor().Accept(value); expected != got {
-// 		t.Errorf("TestVisitBool was expected to return %s, got %s", expected, got)
-// 	}
-// }
+func TestToSqlVisitorVisitBool(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(true)
+	assert.Nil(t, err)
+	assert.Equal(t, `?`, sql)
+	assert.Equal(t, []interface{}{true}, args)
+}

@@ -209,8 +209,12 @@ func (_ *ToSqlVisitor) VisitNot(o *NotNode, visitor VisitorInterface) (err error
 }
 
 func (_ *ToSqlVisitor) VisitLiteral(o *LiteralNode, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlByte(QUESTION)
-	visitor.AppendArg(o.Expr)
+
+	visitor.AppendSqlStr(o.Sql)
+	for _, arg := range o.Args {
+		visitor.AppendArg(arg)
+	}
+
 	return
 }
 
@@ -697,17 +701,20 @@ func (_ *ToSqlVisitor) VisitExistingColumn(o *ExistingColumnNode, visitor Visito
 // }
 
 func (_ *ToSqlVisitor) VisitSelectCore(o *SelectCoreNode, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlStr(SELECT)
 
-	if length := len(o.Cols) - 1; 0 <= length {
-		visitor.AppendSqlByte(SPACE)
-		for index, col := range o.Cols {
+	visitor.AppendSqlStr(SELECT)
+	n := len(o.Cols)
+	if n == 0 {
+		visitor.AppendSqlByte(STAR)
+	} else {
+		n--
+		for i, col := range o.Cols {
 			err = visitor.Visit(col, visitor)
 			if err != nil {
 				return
 			}
 
-			if index != length {
+			if i < n {
 				visitor.AppendSqlByte(COMMA)
 			}
 		}

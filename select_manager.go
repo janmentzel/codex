@@ -28,11 +28,10 @@ func (self *SelectManager) Project(projections ...interface{}) *SelectManager {
 // Appends an expression to the current Context's Wheres slice,
 // typically a comparison, i.e. 1 = 1
 func (self *SelectManager) Where(expr interface{}) *SelectManager {
-	if _, ok := expr.(string); ok {
-		expr = Literal(expr)
-	}
+	if str, ok := expr.(string); ok {
+		expr = Literal(str)
 
-	if _, ok := expr.(*GroupingNode); !ok {
+	} else if _, ok := expr.(*GroupingNode); !ok {
 		expr = Grouping(expr)
 	}
 
@@ -100,8 +99,8 @@ func (self *SelectManager) On(expr interface{}) *SelectManager {
 // Appends an expression to the current Context's Orders slice,
 // typically an attribute.
 func (self *SelectManager) Order(expr interface{}) *SelectManager {
-	if _, ok := expr.(string); ok {
-		expr = Literal(expr)
+	if str, ok := expr.(string); ok {
+		expr = Literal(str)
 	}
 
 	self.Tree.Orders = append(self.Tree.Orders, expr)
@@ -112,8 +111,8 @@ func (self *SelectManager) Order(expr interface{}) *SelectManager {
 // typically an attribute or column.
 func (self *SelectManager) Group(groupings ...interface{}) *SelectManager {
 	for _, group := range groupings {
-		if _, ok := group.(string); ok {
-			group = Literal(group)
+		if str, ok := group.(string); ok {
+			group = Literal(str)
 		}
 
 		self.Context.Groups = append(self.Context.Groups, group)
@@ -123,8 +122,8 @@ func (self *SelectManager) Group(groupings ...interface{}) *SelectManager {
 
 // Sets the Context's Having member to the given expression.
 func (self *SelectManager) Having(expr interface{}) *SelectManager {
-	if _, ok := expr.(string); ok {
-		expr = Literal(expr)
+	if str, ok := expr.(string); ok {
+		expr = Literal(str)
 	}
 
 	self.Context.Having = Having(expr)
