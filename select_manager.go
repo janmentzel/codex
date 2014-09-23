@@ -31,11 +31,24 @@ func (self *SelectManager) Select(projections ...interface{}) *SelectManager {
 
 // Where Appends an expression to the current Context's Wheres slice,
 // typically a comparison, i.e. 1 = 1
-func (self *SelectManager) Where(expr interface{}) *SelectManager {
-	if str, ok := expr.(string); ok {
-		expr = Literal(str)
+//
+//   Where("a")                             // no   args -> Grouping(Literal("a"))
+//   Where("a = ?", 123)                    // with args -> Grouping(Literal("a = ?", 123))
+//   Where("a = ? AND b = ?", 123, true)    // with args -> Grouping(Literal("a = ? AND b = ?", 123, true))
+//   Where(Equal(Column("a"), Column("b"))) // no   args -> Grouping(Equal(Column("a"), Column("b")))
+//
+//
+func (self *SelectManager) Where(expr interface{}, args ...interface{}) *SelectManager {
 
-	} else if _, ok := expr.(*GroupingNode); !ok {
+	if str, ok := expr.(string); ok {
+		if len(args) == 0 {
+			expr = Literal(str)
+		} else {
+			expr = Literal(str, args...)
+		}
+	}
+	// enclose expr in Grouping - except if expr is already a Grouping
+	if _, ok := expr.(*GroupingNode); !ok {
 		expr = Grouping(expr)
 	}
 

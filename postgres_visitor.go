@@ -16,7 +16,7 @@ var _ VisitorInterface = (*PostgresVisitor)(nil)
 
 // creates PostgresVisitor with PostgresCollector
 func NewPostgresVisitor() *PostgresVisitor {
-
+	// can not use NewToSqlVisitor() because PostgresCollector needed instead of Collector.
 	return &PostgresVisitor{&ToSqlVisitor{NewPostgresCollector()}, 0}
 }
 

@@ -1,6 +1,7 @@
 package codex
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -28,4 +29,44 @@ func TestSelectManager(t *testing.T) {
 	_ = mgr.Except(Selection(relation))
 	_ = mgr.SetAdapter(1)
 	_, _, _ = mgr.ToSql()
+}
+
+func TestSelectManagerWhereWithString(t *testing.T) {
+	mgr := Selection(Relation("users"))
+	sql, args, err := mgr.Where("a").ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "users".* FROM "users" WHERE (a)`, sql)
+	assert.Empty(t, args)
+}
+
+func TestSelectManagerWhereWithGrouping(t *testing.T) {
+	mgr := Selection(Relation("users"))
+	sql, args, err := mgr.Where(Grouping(Literal("a"))).ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "users".* FROM "users" WHERE (a)`, sql)
+	assert.Empty(t, args)
+}
+
+func TestSelectManagerWhereWithEqual(t *testing.T) {
+	mgr := Selection(Relation("users"))
+	sql, args, err := mgr.Where(Equal(Column("a"), Column("b"))).ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "users".* FROM "users" WHERE ("a"="b")`, sql)
+	assert.Empty(t, args)
+}
+
+func TestSelectManagerWhereWithSqlAndArg(t *testing.T) {
+	mgr := Selection(Relation("users"))
+	sql, args, err := mgr.Where("a = ?", 1).ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "users".* FROM "users" WHERE (a = ?)`, sql)
+	assert.Equal(t, []interface{}{1}, args)
+}
+
+func TestSelectManagerWhereWithSqlAndArgs(t *testing.T) {
+	mgr := Selection(Relation("users"))
+	sql, args, err := mgr.Where("a = ? AND b = ?", 1, true).ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "users".* FROM "users" WHERE (a = ? AND b = ?)`, sql)
+	assert.Equal(t, []interface{}{1, true}, args)
 }
