@@ -13,7 +13,7 @@ func TestSelectManager(t *testing.T) {
 	_ = mgr.Context
 
 	// The following receiver methods should exist.
-	_ = mgr.Project(1)
+	_ = mgr.Select(1)
 	_ = mgr.Where(1)
 	_ = mgr.Offset(1)
 	_ = mgr.Limit(1)

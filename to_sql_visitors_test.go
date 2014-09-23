@@ -267,7 +267,7 @@ func TestToSqlVisitorOffset(t *testing.T) {
 func TestToSqlVisitorHaving(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(Having(1))
 	assert.Nil(t, err)
-	assert.Equal(t, `HAVING ?`, sql)
+	assert.Equal(t, ` HAVING ?`, sql)
 	assert.Equal(t, []interface{}{1}, args)
 }
 

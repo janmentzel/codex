@@ -41,7 +41,7 @@ Now that wasn't too bad, was it?
 // ...
 
 users := codex.Table("users")
-sql, err := users.Project("id", "email", "first_name", "last_name").ToSql()
+sql, err := users.Select("id", "email", "first_name", "last_name").ToSql()
 ```
 
 #### Filtering

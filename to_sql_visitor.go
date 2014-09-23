@@ -257,7 +257,7 @@ func (_ *ToSqlVisitor) VisitOffset(o *OffsetNode, visitor VisitorInterface) (err
 }
 
 func (_ *ToSqlVisitor) VisitHaving(o *HavingNode, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlStr("HAVING ")
+	visitor.AppendSqlStr(" HAVING ")
 	err = visitor.Visit(o.Expr, visitor)
 	return
 }

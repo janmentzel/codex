@@ -1,8 +1,6 @@
 // Package managers provides AST managers for the codex package.
 package codex
 
-import ()
-
 // SelectManager manages a tree that compiles to a SQL select statement.
 type SelectManager struct {
 	Tree    *SelectStatementNode // The AST for the SQL SELECT statement.
@@ -10,10 +8,16 @@ type SelectManager struct {
 	adapter interface{}          // The SQL adapter.
 }
 
+// // Clone returns
+// func (m *SelectManager) Clone() *SelectManager{
+// 	newMng := deepcopy.Copy(m)
+// 	return  newMng.(*SelectManager)
+// }
+
 // Appends a projection to the current Context's Cols slice,
 // typically an AttributeNode or string.  If a string is provided, it is
 // inserted as a LiteralNode.
-func (self *SelectManager) Project(projections ...interface{}) *SelectManager {
+func (self *SelectManager) Select(projections ...interface{}) *SelectManager {
 	for _, projection := range projections {
 		if _, ok := projection.(string); ok {
 			projection = UnqualifiedColumn(projection)
@@ -25,7 +29,7 @@ func (self *SelectManager) Project(projections ...interface{}) *SelectManager {
 	return self
 }
 
-// Appends an expression to the current Context's Wheres slice,
+// Where Appends an expression to the current Context's Wheres slice,
 // typically a comparison, i.e. 1 = 1
 func (self *SelectManager) Where(expr interface{}) *SelectManager {
 	if str, ok := expr.(string); ok {
@@ -128,6 +132,54 @@ func (self *SelectManager) Having(expr interface{}) *SelectManager {
 
 	self.Context.Having = Having(expr)
 	return self
+}
+
+// Count returns a pointer to an new SelectManager, while keeping Wheres, Havings...
+func (self *SelectManager) Count(expr interface{}) *SelectManager {
+	if str, ok := expr.(string); ok {
+		expr = UnqualifiedColumn(str)
+	}
+
+	cols := make([]interface{}, 1)
+	cols[0] = Count(expr)
+
+	ctx := &SelectCoreNode{
+		Relation: self.Context.Relation,
+		Source:   self.Context.Source,
+		Cols:     cols,
+		Wheres:   self.Context.Wheres,
+		Groups:   self.Context.Groups,
+		Having:   self.Context.Having,
+	}
+
+	tree := &SelectStatementNode{
+		Cores:      make([]*SelectCoreNode, len(self.Tree.Cores)),
+		Orders:     make([]interface{}, 0),
+		Combinator: self.Tree.Combinator,
+		Limit:      self.Tree.Limit,
+		Offset:     self.Tree.Offset,
+	}
+
+	for i, c := range self.Tree.Cores {
+		core := &SelectCoreNode{
+
+			Relation: c.Relation,
+			Source:   c.Source,
+			Cols:     cols,
+			Wheres:   c.Wheres,
+			Groups:   c.Groups,
+			Having:   c.Having,
+		}
+		tree.Cores[i] = core
+	}
+
+	m := &SelectManager{
+		Tree:    tree,
+		Context: ctx,
+		adapter: self.adapter,
+	}
+
+	return m
 }
 
 // Union sets the SelectManager's Tree's Combination member to a
