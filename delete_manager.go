@@ -24,8 +24,9 @@ func (self *DeleteManager) ToSql() (string, []interface{}, error) {
 }
 
 // DeleteManager factory methods.
-func Deletion(relation *RelationNode) (deletion *DeleteManager) {
-	deletion = new(DeleteManager)
-	deletion.Tree = DeleteStatement(relation)
+func Deletion(relation *RelationNode) (m *DeleteManager) {
+	m = new(DeleteManager)
+	m.Tree = DeleteStatement(relation)
+	m.adapter = relation.adapter
 	return
 }

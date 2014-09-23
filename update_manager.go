@@ -54,8 +54,10 @@ func (self *UpdateManager) ToSql() (string, []interface{}, error) {
 }
 
 // UpdateManager factory method.
-func Modification(relation *RelationNode) (modification *UpdateManager) {
-	modification = new(UpdateManager)
-	modification.Tree = UpdateStatement(relation)
+func Modification(relation *RelationNode) (m *UpdateManager) {
+	m = new(UpdateManager)
+	m.Tree = UpdateStatement(relation)
+	m.adapter = relation.adapter
+
 	return
 }

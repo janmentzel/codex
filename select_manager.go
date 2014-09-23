@@ -233,9 +233,10 @@ func (self *SelectManager) ToSql() (string, []interface{}, error) {
 }
 
 // SelectManager factory method.
-func Selection(relation *RelationNode) (selection *SelectManager) {
-	selection = new(SelectManager)
-	selection.Tree = SelectStatement(relation)
-	selection.Context = selection.Tree.Cores[0]
+func Selection(relation *RelationNode) (m *SelectManager) {
+	m = new(SelectManager)
+	m.Tree = SelectStatement(relation)
+	m.Context = m.Tree.Cores[0]
+	m.adapter = relation.adapter
 	return
 }

@@ -2,8 +2,9 @@ package codex
 
 // RelationNode is a specific BinaryNode
 type RelationNode struct {
-	Name  string  // Relation's Name
-	Alias *string // Relation's Alias
+	Name    string  // Relation's Name
+	Alias   *string // Relation's Alias
+	adapter adapter
 }
 
 // RelationNode factory method.

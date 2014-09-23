@@ -13,15 +13,31 @@ func ToggleDebugMode() {
 	DEBUG = !DEBUG
 }
 
+type dbDialect func(string) *AttributeNode
+
+func (db dbDialect) Table(name string) *RelationNode {
+	return db(name).Relation
+}
+
+func Dialect(adapter adapter) dbDialect {
+	return func(tableName string) *AttributeNode {
+		table := Relation(tableName)
+		table.adapter = adapter
+
+		return Attribute(tableName, table)
+	}
+}
+
+// deprecated
 // Table returns an Accessor from the managers package for
 // generating SQL to interact with existing tables.
-func Table(name string) Accessor {
-	relation := Relation(name)
-	return func(name interface{}) *AttributeNode {
-		if _, ok := name.(string); ok {
-			return Attribute(Column(name), relation)
+func Table(tableName string) Accessor {
+	table := Relation(tableName)
+	return func(colName interface{}) *AttributeNode {
+		if _, ok := colName.(string); ok {
+			return Attribute(Column(colName), table)
 		}
 
-		return Attribute(name, relation)
+		return Attribute(colName, table)
 	}
 }
