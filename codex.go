@@ -13,13 +13,13 @@ func ToggleDebugMode() {
 	DEBUG = !DEBUG
 }
 
-type dbDialect func(string) *AttributeNode
+type DbDialect func(string) *AttributeNode
 
-func (db dbDialect) Table(name string) *RelationNode {
+func (db DbDialect) Table(name string) *RelationNode {
 	return db(name).Relation
 }
 
-func Dialect(adapter adapter) dbDialect {
+func Dialect(adapter adapter) DbDialect {
 	return func(tableName string) *AttributeNode {
 		table := Relation(tableName)
 		table.Adapter = adapter
