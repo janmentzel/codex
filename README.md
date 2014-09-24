@@ -146,6 +146,7 @@ View godoc or visit [godoc.org](http://godoc.org/github.com/janmentzel/codex).
 > The MIT License (MIT)
 
 > Copyright (c) 2013 Chuck Preslar
+
 > Copyright (c) 2014 Jan Mentzel, Luzifer Altenberg
 
 > Permission is hereby granted, free of charge, to any person obtaining a copy
