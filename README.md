@@ -2,13 +2,13 @@
 
 Codex is **NOT** an ORM, but a relation algebra inspired by [Arel](http://www.github.com/rails/arel) for generating SQL. Project is still early in development but stable.
 
-[![Build Status](https://drone.io/github.com/chuckpreslar/codex/status.png)](https://drone.io/github.com/chuckpreslar/codex/latest)
+[![Build Status](https://drone.io/github.com/janmentzel/codex/status.png)](https://drone.io/github.com/janmentzel/codex/latest)
 
 ## Installation
 
 With Google's [Go](http://www.golang.org) installed on your machine:
 
-    $ go get -u github.com/chuckpreslar/codex
+    $ go get -u github.com/janmentzel/codex
 
 ## Usage
 
@@ -23,7 +23,7 @@ Now using Codex:
 ```go
 import (
   /* Maybe some other imports. */
-  "github.com/chuckpreslar/codex"
+  "github.com/janmentzel/codex"
 )
 
 
@@ -137,7 +137,7 @@ Alterations work the same as Creations, only the the initializer function `Alter
 
 ## Documentation
 
-View godoc or visit [godoc.org](http://godoc.org/github.com/chuckpreslar/codex).
+View godoc or visit [godoc.org](http://godoc.org/github.com/janmentzel/codex).
 
     $ godoc codex
 
@@ -145,7 +145,7 @@ View godoc or visit [godoc.org](http://godoc.org/github.com/chuckpreslar/codex).
 
 > The MIT License (MIT)
 
-> Copyright (c) 2013 Chuck Preslar
+> Copyright (c) 2014 Jan Mentzel
 
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
