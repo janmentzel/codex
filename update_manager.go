@@ -6,6 +6,19 @@ type UpdateManager struct {
 	Adapter adapter              // The SQL Engine.
 }
 
+var _ Scoper = (*UpdateManager)(nil)
+
+func (self *UpdateManager) Scopes(scopes ...ScopeFunc) *UpdateManager {
+	for _, scope := range scopes {
+		scope(self)
+	}
+	return self
+}
+
+func (self *UpdateManager) Scope(expr interface{}, args ...interface{}) {
+	self.Where(expr, args...)
+}
+
 // Set appends to the trees Values slice a list of UnqualifiedColumnNodes
 // which are to be modified in the query.
 func (self *UpdateManager) Set(columns ...interface{}) *UpdateManager {

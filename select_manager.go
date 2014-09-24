@@ -7,6 +7,19 @@ type SelectManager struct {
 	Adapter adapter              // The SQL adapter.
 }
 
+var _ Scoper = (*SelectManager)(nil)
+
+func (self *SelectManager) Scopes(scopes ...ScopeFunc) *SelectManager {
+	for _, scope := range scopes {
+		scope(self)
+	}
+	return self
+}
+
+func (self *SelectManager) Scope(expr interface{}, args ...interface{}) {
+	self.Where(expr, args...)
+}
+
 // // Clone returns
 // func (m *SelectManager) Clone() *SelectManager{
 // 	newMng := deepcopy.Copy(m)

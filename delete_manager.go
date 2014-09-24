@@ -6,6 +6,19 @@ type DeleteManager struct {
 	Adapter adapter              // The SQL adapter.
 }
 
+var _ Scoper = (*DeleteManager)(nil)
+
+func (self *DeleteManager) Scopes(scopes ...ScopeFunc) *DeleteManager {
+	for _, scope := range scopes {
+		scope(self)
+	}
+	return self
+}
+
+func (self *DeleteManager) Scope(expr interface{}, args ...interface{}) {
+	self.Where(expr, args...)
+}
+
 // Delete appends the expression to the Trees Wheres slice.
 // alias Where
 func (self *DeleteManager) Delete(expr interface{}, args ...interface{}) *DeleteManager {

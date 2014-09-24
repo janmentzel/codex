@@ -41,3 +41,12 @@ func Table(tableName string) Accessor {
 		return Attribute(colName, table)
 	}
 }
+
+// Scoper enables scoping support for SelectManager, UpdateManager, DeleteManager
+type Scoper interface {
+	// Scope wraps Where method and omits the return value so Scope() signature remains generic
+	Scope(expr interface{}, args ...interface{})
+}
+
+// ScopeFunc is implemented by DB layer 'models'
+type ScopeFunc func(Scoper)
