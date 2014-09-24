@@ -27,7 +27,6 @@ func TestSelectManager(t *testing.T) {
 	_ = mgr.Union(Selection(relation))
 	_ = mgr.Intersect(Selection(relation))
 	_ = mgr.Except(Selection(relation))
-	_ = mgr.SetAdapter(1)
 	_, _, _ = mgr.ToSql()
 }
 

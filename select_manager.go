@@ -4,7 +4,7 @@ package codex
 type SelectManager struct {
 	Tree    *SelectStatementNode // The AST for the SQL SELECT statement.
 	Context *SelectCoreNode      // Reference to the Core the manager is curretly operating on.
-	adapter adapter              // The SQL adapter.
+	Adapter adapter              // The SQL adapter.
 }
 
 // // Clone returns
@@ -31,20 +31,16 @@ func (self *SelectManager) Select(projections ...interface{}) *SelectManager {
 // Where Appends an expression to the current Context's Wheres slice,
 // typically a comparison, i.e. 1 = 1
 //
-//   Where("a")                             // no   args -> Grouping(Literal("a"))
-//   Where("a = ?", 123)                    // with args -> Grouping(Literal("a = ?", 123))
-//   Where("a = ? AND b = ?", 123, true)    // with args -> Grouping(Literal("a = ? AND b = ?", 123, true))
-//   Where(Equal(Column("a"), Column("b"))) // no   args -> Grouping(Equal(Column("a"), Column("b")))
+//   Where("a")                             // no   args -> Group(Literal("a"))
+//   Where("a = ?", 123)                    // with args -> Group(Literal("a = ?", 123))
+//   Where("a = ? AND b = ?", 123, true)    // with args -> Group(Literal("a = ? AND b = ?", 123, true))
+//   Where(Equal(Column("a"), Column("b"))) // no   args -> Group(Equal(Column("a"), Column("b")))
 //
 //
 func (self *SelectManager) Where(expr interface{}, args ...interface{}) *SelectManager {
 
 	if str, ok := expr.(string); ok {
-		if len(args) == 0 {
-			expr = Literal(str)
-		} else {
-			expr = Literal(str, args...)
-		}
+		expr = Literal(str, args...)
 	}
 	// enclose expr in Grouping - except if expr is already a Grouping
 	if _, ok := expr.(*GroupingNode); !ok {
@@ -188,7 +184,7 @@ func (self *SelectManager) Count(expr interface{}) *SelectManager {
 	m := &SelectManager{
 		Tree:    tree,
 		Context: ctx,
-		adapter: self.adapter,
+		Adapter: self.Adapter,
 	}
 
 	return m
@@ -215,12 +211,6 @@ func (self *SelectManager) Except(manager *SelectManager) *SelectManager {
 	return self
 }
 
-// Sets the SQL Adapter.
-func (self *SelectManager) SetAdapter(adapter adapter) *SelectManager {
-	self.adapter = adapter
-	return self
-}
-
 // ToSql calls a visitor's Accept method based on the manager's SQL adapter.
 func (self *SelectManager) ToSql() (string, []interface{}, error) {
 	for _, core := range self.Tree.Cores {
@@ -229,7 +219,7 @@ func (self *SelectManager) ToSql() (string, []interface{}, error) {
 		}
 	}
 
-	return VisitorFor(self.adapter).Accept(self.Tree)
+	return VisitorFor(self.Adapter).Accept(self.Tree)
 }
 
 // SelectManager factory method.
@@ -237,6 +227,6 @@ func Selection(relation *RelationNode) (m *SelectManager) {
 	m = new(SelectManager)
 	m.Tree = SelectStatement(relation)
 	m.Context = m.Tree.Cores[0]
-	m.adapter = relation.adapter
+	m.Adapter = relation.Adapter
 	return
 }

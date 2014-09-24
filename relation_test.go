@@ -77,6 +77,16 @@ func TestRelationOrder(t *testing.T) {
 	assert.Empty(t, args)
 }
 
+func TestRelationOrderTwo(t *testing.T) {
+	rel := Relation("foo")
+	m := rel.Order(rel.Col("group_id").Desc()).Order(rel.Col("name").Asc())
+
+	sql, args, err := m.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "foo".* FROM "foo" ORDER BY "foo"."group_id" DESC,"foo"."name" ASC`, sql)
+	assert.Empty(t, args)
+}
+
 func TestRelationGroup(t *testing.T) {
 	rel := Relation("foo")
 	m := rel.Group(rel.Col("id"))
@@ -84,6 +94,16 @@ func TestRelationGroup(t *testing.T) {
 	sql, args, err := m.ToSql()
 	assert.Nil(t, err)
 	assert.Equal(t, `SELECT "foo".* FROM "foo" GROUP BY "foo"."id"`, sql)
+	assert.Empty(t, args)
+}
+
+func TestRelationGroupTwoCols(t *testing.T) {
+	rel := Relation("foo")
+	m := rel.Group(rel.Col("id"), rel.Col("bar_id"))
+
+	sql, args, err := m.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "foo".* FROM "foo" GROUP BY "foo"."id","foo"."bar_id"`, sql)
 	assert.Empty(t, args)
 }
 
@@ -139,6 +159,6 @@ func TestRelationDelete(t *testing.T) {
 
 	sql, args, err := m.ToSql()
 	assert.Nil(t, err)
-	assert.Equal(t, `DELETE FROM "foo" WHERE ?`, sql)
+	assert.Equal(t, `DELETE FROM "foo" WHERE (?)`, sql)
 	assert.Equal(t, []interface{}{1}, args)
 }

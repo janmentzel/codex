@@ -3,7 +3,7 @@ package codex
 // UpdateManager manages a tree that compiles to a SQL update statement.
 type UpdateManager struct {
 	Tree    *UpdateStatementNode // The AST for the SQL UPDATE statement.
-	adapter adapter              // The SQL Engine.
+	Adapter adapter              // The SQL Engine.
 }
 
 // Set appends to the trees Values slice a list of UnqualifiedColumnNodes
@@ -29,9 +29,22 @@ func (self *UpdateManager) To(values ...interface{}) *UpdateManager {
 	return self
 }
 
-// Appends an expression to the current tree's Wheres slice,
-// typically a comparison, i.e. 1 = 1
-func (self *UpdateManager) Where(expr interface{}) *UpdateManager {
+// Where appends an sql WHERE condition to the current tree's Wheres slice,
+//
+//   Where("a")                             // no   args -> Group(Literal("a"))
+//   Where("a = ?", 123)                    // with args -> Group(Literal("a = ?", 123))
+//   Where("a = ? AND b = ?", 123, true)    // with args -> Group(Literal("a = ? AND b = ?", 123, true))
+//   Where(Equal(Column("a"), Column("b"))) // no   args -> Group(Equal(Column("a"), Column("b")))
+func (self *UpdateManager) Where(expr interface{}, args ...interface{}) *UpdateManager {
+
+	if str, ok := expr.(string); ok {
+		expr = Literal(str, args...)
+	}
+	// enclose expr in Grouping - except if expr is already a Grouping
+	if _, ok := expr.(*GroupingNode); !ok {
+		expr = Grouping(expr)
+	}
+
 	self.Tree.Wheres = append(self.Tree.Wheres, expr)
 	return self
 }
@@ -42,22 +55,16 @@ func (self *UpdateManager) Limit(expr interface{}) *UpdateManager {
 	return self
 }
 
-// Sets the SQL Adapter.
-func (self *UpdateManager) SetAdapter(adapter adapter) *UpdateManager {
-	self.adapter = adapter
-	return self
-}
-
 // ToSql calls a visitor's Accept method based on the manager's SQL adapter.
 func (self *UpdateManager) ToSql() (string, []interface{}, error) {
-	return VisitorFor(self.adapter).Accept(self.Tree)
+	return VisitorFor(self.Adapter).Accept(self.Tree)
 }
 
 // UpdateManager factory method.
 func Modification(relation *RelationNode) (m *UpdateManager) {
 	m = new(UpdateManager)
 	m.Tree = UpdateStatement(relation)
-	m.adapter = relation.adapter
+	m.Adapter = relation.Adapter
 
 	return
 }

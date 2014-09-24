@@ -22,7 +22,7 @@ func (db dbDialect) Table(name string) *RelationNode {
 func Dialect(adapter adapter) dbDialect {
 	return func(tableName string) *AttributeNode {
 		table := Relation(tableName)
-		table.adapter = adapter
+		table.Adapter = adapter
 
 		return Attribute(tableName, table)
 	}

@@ -13,6 +13,5 @@ func TestDeleteManager(t *testing.T) {
 
 	// The following receiver methods should exist.
 	_ = mgr.Delete(1)
-	_ = mgr.SetAdapter(1)
 	_, _, _ = mgr.ToSql()
 }

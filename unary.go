@@ -9,7 +9,6 @@ type BindingNode UnaryNode           // BindingNode is a UnaryNode struct.
 type OnNode UnaryNode                // OnNode is a UnaryNode struct.
 type LimitNode UnaryNode             // LimitNode is a UnaryNode struct.
 type OffsetNode UnaryNode            // OffsetNode is a UnaryNode struct.
-type GroupNode UnaryNode             // GroupNode is a UnaryNode struct.
 type HavingNode UnaryNode            // HavingNode is a UnaryNode struct.
 type UnqualifiedColumnNode UnaryNode // UnqualifiedColumnNode is a UnaryNode struct.
 type ColumnNode UnaryNode            // ColumnNode is a UnaryNode struct.
@@ -33,13 +32,6 @@ func Limit(expr interface{}) (limit *LimitNode) {
 func Offset(expr interface{}) (offset *OffsetNode) {
 	offset = new(OffsetNode)
 	offset.Expr = expr
-	return
-}
-
-// GroupNode factory method.
-func Group(expr interface{}) (group *GroupNode) {
-	group = new(GroupNode)
-	group.Expr = expr
 	return
 }
 

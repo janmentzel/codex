@@ -15,6 +15,5 @@ func TestInsertManager(t *testing.T) {
 	_ = mgr.Insert(1)
 	_ = mgr.Into(1)
 	_ = mgr.Returning(1)
-	_ = mgr.SetAdapter(1)
 	_, _, _ = mgr.ToSql()
 }

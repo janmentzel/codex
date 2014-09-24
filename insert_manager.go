@@ -3,7 +3,7 @@ package codex
 // InsertManager manages a tree that compiles to a SQL insert statement.
 type InsertManager struct {
 	Tree    *InsertStatementNode // The AST for the SQL INSERT statement.
-	adapter adapter              // The SQL adapter.
+	Adapter adapter              // The SQL adapter.
 }
 
 // Appends the values to the trees Values node
@@ -30,20 +30,14 @@ func (self *InsertManager) Returning(column interface{}) *InsertManager {
 	return self
 }
 
-// Sets the SQL Adapter.
-func (self *InsertManager) SetAdapter(adapter adapter) *InsertManager {
-	self.adapter = adapter
-	return self
-}
-
 // ToSql calls a visitor's Accept method based on the manager's SQL adapter.
 func (self *InsertManager) ToSql() (string, []interface{}, error) {
-	return VisitorFor(self.adapter).Accept(self.Tree)
+	return VisitorFor(self.Adapter).Accept(self.Tree)
 }
 
 func Insertion(relation *RelationNode) (m *InsertManager) {
 	m = new(InsertManager)
 	m.Tree = InsertStatement(relation)
-	m.adapter = relation.adapter
+	m.Adapter = relation.Adapter
 	return
 }

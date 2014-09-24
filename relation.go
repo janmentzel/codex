@@ -4,7 +4,7 @@ package codex
 type RelationNode struct {
 	Name    string  // Relation's Name
 	Alias   *string // Relation's Alias
-	adapter adapter
+	Adapter adapter
 }
 
 // RelationNode factory method.
