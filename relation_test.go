@@ -9,6 +9,20 @@ func TestRelationFactory(t *testing.T) {
 	rel := Relation("foo")
 	assert.Equal(t, "foo", rel.Name)
 	assert.Nil(t, rel.Alias)
+	assert.Empty(t, rel.scopes)
+}
+
+func TestRelationScopes(t *testing.T) {
+	rel := Relation("foo")
+
+	scope1 := func(s Scoper) {
+		s.Scope(rel.Col("owner_id").Eq(77))
+	}
+	scope2 := func(s Scoper) {
+		s.Scope(rel.Col("active"))
+	}
+	rel.Scopes(scope1, scope2)
+	assert.Equal(t, []ScopeFunc{scope1, scope2}, rel.scopes)
 }
 
 func TestRelationCol(t *testing.T) {
@@ -29,6 +43,19 @@ func TestRelationSelect(t *testing.T) {
 	assert.Empty(t, args)
 }
 
+func TestRelationSelectScoped(t *testing.T) {
+	rel := Relation("foo")
+	scope := func(s Scoper) {
+		s.Scope(rel.Col("owner_id").Eq(77))
+	}
+	m := rel.Scopes(scope).Select("id", Column("name"), Literal("age"))
+
+	sql, args, err := m.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "foo"."id","name",age FROM "foo" WHERE ("foo"."owner_id"=?)`, sql)
+	assert.Equal(t, []interface{}{77}, args)
+}
+
 func TestRelationWhereWithNode(t *testing.T) {
 	rel := Relation("foo")
 	m := rel.Where(rel.Col("id").Eq(1))
@@ -37,6 +64,19 @@ func TestRelationWhereWithNode(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, `SELECT "foo".* FROM "foo" WHERE ("foo"."id"=?)`, sql)
 	assert.Equal(t, []interface{}{1}, args)
+}
+
+func TestRelationWhereWithNodeAndScope(t *testing.T) {
+	rel := Relation("foo")
+	scope := func(s Scoper) {
+		s.Scope(rel.Col("owner_id").Eq(77))
+	}
+	m := rel.Scopes(scope).Where(rel.Col("id").Eq(1))
+
+	sql, args, err := m.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "foo".* FROM "foo" WHERE ("foo"."owner_id"=?) AND ("foo"."id"=?)`, sql)
+	assert.Equal(t, []interface{}{77, 1}, args)
 }
 
 func TestRelationWhereWithSqlAndArgs(t *testing.T) {
@@ -58,6 +98,20 @@ func TestRelationInnerJoin(t *testing.T) {
 	assert.Empty(t, args)
 }
 
+func TestRelationInnerJoinScoped(t *testing.T) {
+	rel := Relation("foo")
+	scope := func(s Scoper) {
+		s.Scope(rel.Col("owner_id").Eq(77))
+	}
+
+	m := rel.Scopes(scope).InnerJoin(Relation("bar"))
+
+	sql, args, err := m.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "foo".* FROM "foo" INNER JOIN "bar" WHERE ("foo"."owner_id"=?)`, sql)
+	assert.Equal(t, []interface{}{77}, args)
+}
+
 func TestRelationOuterJoin(t *testing.T) {
 	m := Relation("foo").OuterJoin(Relation("bar"))
 
@@ -65,6 +119,20 @@ func TestRelationOuterJoin(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, `SELECT "foo".* FROM "foo" LEFT OUTER JOIN "bar"`, sql)
 	assert.Empty(t, args)
+}
+
+func TestRelationOuterJoinScoped(t *testing.T) {
+	rel := Relation("foo")
+	scope := func(s Scoper) {
+		s.Scope(rel.Col("owner_id").Eq(77))
+	}
+
+	m := rel.Scopes(scope).OuterJoin(Relation("bar"))
+
+	sql, args, err := m.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "foo".* FROM "foo" LEFT OUTER JOIN "bar" WHERE ("foo"."owner_id"=?)`, sql)
+	assert.Equal(t, []interface{}{77}, args)
 }
 
 func TestRelationOrder(t *testing.T) {
@@ -75,6 +143,20 @@ func TestRelationOrder(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, `SELECT "foo".* FROM "foo" ORDER BY "foo"."id" ASC`, sql)
 	assert.Empty(t, args)
+}
+
+func TestRelationOrderScoped(t *testing.T) {
+	rel := Relation("foo")
+	scope := func(s Scoper) {
+		s.Scope(rel.Col("owner_id").Eq(77))
+	}
+
+	m := rel.Scopes(scope).Order(rel.Col("id").Asc())
+
+	sql, args, err := m.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "foo".* FROM "foo" WHERE ("foo"."owner_id"=?) ORDER BY "foo"."id" ASC`, sql)
+	assert.Equal(t, []interface{}{77}, args)
 }
 
 func TestRelationOrderTwo(t *testing.T) {
@@ -97,6 +179,20 @@ func TestRelationGroup(t *testing.T) {
 	assert.Empty(t, args)
 }
 
+func TestRelationGroupScoped(t *testing.T) {
+	rel := Relation("foo")
+	scope := func(s Scoper) {
+		s.Scope(rel.Col("owner_id").Eq(77))
+	}
+
+	m := rel.Scopes(scope).Group(rel.Col("id"))
+
+	sql, args, err := m.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "foo".* FROM "foo" WHERE ("foo"."owner_id"=?) GROUP BY "foo"."id"`, sql)
+	assert.Equal(t, []interface{}{77}, args)
+}
+
 func TestRelationGroupTwoCols(t *testing.T) {
 	rel := Relation("foo")
 	m := rel.Group(rel.Col("id"), rel.Col("bar_id"))
@@ -117,6 +213,20 @@ func TestRelationHaving(t *testing.T) {
 	assert.Empty(t, args)
 }
 
+func TestRelationHavingScoped(t *testing.T) {
+	rel := Relation("foo")
+	scope := func(s Scoper) {
+		s.Scope(rel.Col("owner_id").Eq(77))
+	}
+
+	m := rel.Scopes(scope).Having(rel.Col("id"))
+
+	sql, args, err := m.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "foo".* FROM "foo" WHERE ("foo"."owner_id"=?) HAVING "foo"."id"`, sql)
+	assert.Equal(t, []interface{}{77}, args)
+}
+
 func TestRelationCount(t *testing.T) {
 	rel := Relation("foo")
 	m := rel.Select("id").Where(rel.Col("id").Eq(1))
@@ -131,6 +241,27 @@ func TestRelationCount(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, `SELECT COUNT("id") FROM "foo" WHERE ("foo"."id"=?)`, sql)
 	assert.Equal(t, []interface{}{1}, args)
+}
+
+func TestRelationCountScoped(t *testing.T) {
+	rel := Relation("foo")
+	scope := func(s Scoper) {
+		s.Scope(rel.Col("owner_id").Eq(77))
+	}
+	rel.Scopes(scope)
+
+	m := rel.Select("id").Where(rel.Col("id").Eq(1))
+	m1 := m.Count("id")
+
+	sql, args, err := m.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "foo"."id" FROM "foo" WHERE ("foo"."owner_id"=?) AND ("foo"."id"=?)`, sql)
+	assert.Equal(t, []interface{}{77, 1}, args)
+
+	sql, args, err = m1.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT COUNT("id") FROM "foo" WHERE ("foo"."owner_id"=?) AND ("foo"."id"=?)`, sql)
+	assert.Equal(t, []interface{}{77, 1}, args)
 }
 
 func TestRelationInsert(t *testing.T) {
@@ -153,6 +284,19 @@ func TestRelationSet(t *testing.T) {
 	assert.Equal(t, []interface{}{1}, args)
 }
 
+func TestRelationSetScoped(t *testing.T) {
+	rel := Relation("foo")
+	scope := func(s Scoper) {
+		s.Scope(rel.Col("owner_id").Eq(77))
+	}
+	m := rel.Scopes(scope).Set("id").To(1)
+
+	sql, args, err := m.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `UPDATE "foo" SET "id"=? WHERE ("foo"."owner_id"=?)`, sql)
+	assert.Equal(t, []interface{}{1, 77}, args)
+}
+
 func TestRelationDelete(t *testing.T) {
 	rel := Relation("foo")
 	m := rel.Delete(1)
@@ -161,4 +305,17 @@ func TestRelationDelete(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, `DELETE FROM "foo" WHERE (?)`, sql)
 	assert.Equal(t, []interface{}{1}, args)
+}
+
+func TestRelationDeleteScoped(t *testing.T) {
+	rel := Relation("foo")
+	scope := func(s Scoper) {
+		s.Scope(rel.Col("owner_id").Eq(77))
+	}
+	m := rel.Scopes(scope).Delete(1)
+
+	sql, args, err := m.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `DELETE FROM "foo" WHERE ("foo"."owner_id"=?) AND (?)`, sql)
+	assert.Equal(t, []interface{}{77, 1}, args)
 }
