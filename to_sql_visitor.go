@@ -81,10 +81,6 @@ func (_ *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 		return visitor.VisitAscending(o.(*AscendingNode), visitor)
 	case *DescendingNode:
 		return visitor.VisitDescending(o.(*DescendingNode), visitor)
-	case *EngineNode:
-		return visitor.VisitEngine(o.(*EngineNode), visitor)
-	case *IndexNameNode:
-		return visitor.VisitIndexName(o.(*IndexNameNode), visitor)
 
 	// Binary node visitors.
 	case *AssignmentNode:
@@ -127,10 +123,6 @@ func (_ *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 		return visitor.VisitIntersect(o.(*IntersectNode), visitor)
 	case *ExceptNode:
 		return visitor.VisitExcept(o.(*ExceptNode), visitor)
-	case *UnexistingColumnNode:
-		return visitor.VisitUnexistingColumn(o.(*UnexistingColumnNode), visitor)
-	case *ExistingColumnNode:
-		return visitor.VisitExistingColumn(o.(*ExistingColumnNode), visitor)
 
 	// Nary node visitors.
 	case *SelectCoreNode:
@@ -156,10 +148,6 @@ func (_ *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 	case *MinimumNode:
 		return visitor.VisitMinimum(o.(*MinimumNode), visitor)
 
-	// SQL constant visitors.
-	case Type:
-		return visitor.VisitSqlType(o.(Type), visitor)
-
 	// Base visitors.
 	case string:
 		return visitor.VisitString(o, visitor)
@@ -184,7 +172,7 @@ func (_ *ToSqlVisitor) VisitGrouping(o *GroupingNode, visitor VisitorInterface) 
 }
 
 func (_ *ToSqlVisitor) VisitNot(o *NotNode, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlStr("NOT (")
+	visitor.AppendSqlStr("NOT(")
 	err = visitor.Visit(o.Expr, visitor)
 	visitor.AppendSqlByte(')')
 	return
@@ -253,16 +241,6 @@ func (_ *ToSqlVisitor) VisitAscending(o *AscendingNode, visitor VisitorInterface
 func (_ *ToSqlVisitor) VisitDescending(o *DescendingNode, visitor VisitorInterface) (err error) {
 	err = visitor.Visit(o.Expr, visitor)
 	visitor.AppendSqlStr(" DESC")
-	return
-}
-
-func (_ *ToSqlVisitor) VisitEngine(o *EngineNode, visitor VisitorInterface) (err error) {
-	err = visitor.Visit(o.Expr, visitor)
-	return
-}
-
-func (_ *ToSqlVisitor) VisitIndexName(o *IndexNameNode, visitor VisitorInterface) (err error) {
-	err = visitor.QuoteColumnName(o.Expr, visitor)
 	return
 }
 
@@ -512,31 +490,6 @@ func (_ *ToSqlVisitor) VisitExcept(o *ExceptNode, visitor VisitorInterface) (err
 	err = visitor.Visit(o.Right, visitor)
 
 	visitor.AppendSqlByte(')')
-	return
-}
-
-func (_ *ToSqlVisitor) VisitUnexistingColumn(o *UnexistingColumnNode, visitor VisitorInterface) (err error) {
-	err = visitor.Visit(o.Left, visitor)
-	if err != nil {
-		return
-	}
-	visitor.AppendSqlByte(SPACE)
-
-	err = visitor.Visit(o.Right, visitor)
-
-	return
-}
-
-func (_ *ToSqlVisitor) VisitExistingColumn(o *ExistingColumnNode, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlStr("ALTER COLUMN ")
-	err = visitor.Visit(o.Left, visitor)
-	if err != nil {
-		return
-	}
-	visitor.AppendSqlStr(" TYPE ")
-
-	err = visitor.Visit(o.Right, visitor)
-
 	return
 }
 
@@ -906,38 +859,6 @@ func (_ *ToSqlVisitor) VisitMinimum(o *MinimumNode, visitor VisitorInterface) (e
 	return
 }
 
-// Begin SQL constant visitors.
-
-func (_ *ToSqlVisitor) VisitSqlType(o Type, visitor VisitorInterface) (err error) {
-	switch o {
-	case String:
-		visitor.AppendSqlStr("varchar(255)")
-	case Text:
-		visitor.AppendSqlStr("text")
-	case Boolean:
-		visitor.AppendSqlStr("boolean")
-	case Integer:
-		visitor.AppendSqlStr("integer")
-	case Float:
-		visitor.AppendSqlStr("float")
-	case Decimal:
-		visitor.AppendSqlStr("decimal")
-	case Date:
-		visitor.AppendSqlStr("date")
-	case Time:
-		visitor.AppendSqlStr("time")
-	case Datetime:
-		visitor.AppendSqlStr("datetime")
-	case Timestamp:
-		visitor.AppendSqlStr("timestamp")
-	default:
-		err = errors.New(fmt.Sprintf("Unkown SQL Type constant: %T", o))
-	}
-	return
-}
-
-// End SQL constant visitors.
-
 // Begin Base visitors.
 
 func (_ *ToSqlVisitor) VisitString(o interface{}, visitor VisitorInterface) (err error) {
@@ -977,25 +898,6 @@ func (_ *ToSqlVisitor) QuoteTableName(o interface{}, visitor VisitorInterface) (
 func (_ *ToSqlVisitor) QuoteColumnName(o interface{}, visitor VisitorInterface) (err error) {
 	// TODO remove Sprintf  with (o).(Table).Name
 	visitor.AppendSqlStr(fmt.Sprintf(`"%v"`, o))
-	return
-}
-
-// FIXME: Not sure if I like this as a solution to indexing
-// on multiple columns.
-func (_ *ToSqlVisitor) FormatConstraintColumns(cols []interface{}, visitor VisitorInterface) (err error) {
-
-	n := len(cols)
-	for i, col := range cols {
-		err = visitor.Visit(col, visitor)
-		if err != nil {
-			return
-		}
-
-		if i != n {
-			visitor.AppendSqlByte(COMMA)
-		}
-	}
-
 	return
 }
 

@@ -448,6 +448,13 @@ func TestToSqlVisitorAssignment(t *testing.T) {
 	assert.Equal(t, []interface{}{2}, args)
 }
 
+func TestToSqlVisitorNot(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Not(Column("b")))
+	assert.Nil(t, err)
+	assert.Equal(t, `NOT("b")`, sql)
+	assert.Empty(t, args)
+}
+
 func TestToSqlVisitorLiteralNoArgs(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(Literal("id IS NOT NULL"))
 	assert.Nil(t, err)

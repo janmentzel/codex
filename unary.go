@@ -14,8 +14,6 @@ type HavingNode UnaryNode            // HavingNode is a UnaryNode struct.
 type UnqualifiedColumnNode UnaryNode // UnqualifiedColumnNode is a UnaryNode struct.
 type ColumnNode UnaryNode            // ColumnNode is a UnaryNode struct.
 type StarNode UnaryNode              // StarNode is a Unary node struct.
-type EngineNode UnaryNode            // EngineNode is a Unary node struct.
-type IndexNameNode UnaryNode         // IndexNameNode is a Unary node struct.
 
 // OnNode factory method.
 func On(expr interface{}) (on *OnNode) {
@@ -73,20 +71,6 @@ func Star() *StarNode {
 // BindingNode factory method.
 func Binding() *BindingNode {
 	return new(BindingNode)
-}
-
-// EngineNode factory method.
-func Engine(expr interface{}) (engine *EngineNode) {
-	engine = new(EngineNode)
-	engine.Expr = expr
-	return
-}
-
-// IndexNameNode factory method.
-func IndexName(expr interface{}) (index *IndexNameNode) {
-	index = new(IndexNameNode)
-	index.Expr = expr
-	return
 }
 
 func (u *UnqualifiedColumnNode) Eq(other interface{}) *EqualNode {

@@ -24,8 +24,6 @@ type VisitorInterface interface {
 	VisitHaving(*HavingNode, VisitorInterface) error
 	VisitAscending(*AscendingNode, VisitorInterface) error
 	VisitDescending(*DescendingNode, VisitorInterface) error
-	VisitEngine(*EngineNode, VisitorInterface) error
-	VisitIndexName(*IndexNameNode, VisitorInterface) error
 
 	// Binary node visitors.
 	VisitAssignment(*AssignmentNode, VisitorInterface) error
@@ -48,8 +46,6 @@ type VisitorInterface interface {
 	VisitUnion(*UnionNode, VisitorInterface) error
 	VisitExcept(*ExceptNode, VisitorInterface) error
 	VisitIntersect(*IntersectNode, VisitorInterface) error
-	VisitUnexistingColumn(*UnexistingColumnNode, VisitorInterface) error
-	VisitExistingColumn(*ExistingColumnNode, VisitorInterface) error
 
 	// Nary node visitors.
 	VisitSelectCore(*SelectCoreNode, VisitorInterface) error
@@ -65,9 +61,6 @@ type VisitorInterface interface {
 	VisitMaximum(*MaximumNode, VisitorInterface) error
 	VisitMinimum(*MinimumNode, VisitorInterface) error
 
-	// SQL constant visitors.
-	VisitSqlType(Type, VisitorInterface) error
-
 	// Base visitors.
 	VisitString(interface{}, VisitorInterface) error
 	VisitInteger(interface{}, VisitorInterface) error
@@ -77,5 +70,4 @@ type VisitorInterface interface {
 	// Helpers.
 	QuoteTableName(interface{}, VisitorInterface) error
 	QuoteColumnName(interface{}, VisitorInterface) error
-	FormatConstraintColumns([]interface{}, VisitorInterface) error
 }
