@@ -3,6 +3,7 @@
 Codex is **NOT** an ORM, but a relation algebra inspired by [Arel](http://www.github.com/rails/arel) for generating SQL. Project is still early in development but stable.
 
 [![Build Status](https://drone.io/github.com/janmentzel/codex/status.png)](https://drone.io/github.com/janmentzel/codex/latest)
+[![Coverage Status](https://coveralls.io/repos/janmentzel/codex/badge.png)](https://coveralls.io/r/janmentzel/codex)
 
 ## Installation
 
