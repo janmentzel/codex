@@ -48,7 +48,7 @@ type VisitorInterface interface {
 	VisitIntersect(*IntersectNode, VisitorInterface) error
 
 	// Nary node visitors.
-	VisitSelectCore(*SelectCoreNode, VisitorInterface) error
+	VisitSelectCore(*SelectStatementNode, VisitorInterface) error
 	VisitSelectStatement(*SelectStatementNode, VisitorInterface) error
 	VisitInsertStatement(*InsertStatementNode, VisitorInterface) error
 	VisitUpdateStatement(*UpdateStatementNode, VisitorInterface) error

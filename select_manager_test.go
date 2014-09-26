@@ -11,7 +11,6 @@ func TestSelectManager(t *testing.T) {
 
 	// The following struct members should exist.
 	_ = mgr.Tree
-	_ = mgr.Context
 
 	// The following receiver methods should exist.
 	_ = mgr.Select(1)

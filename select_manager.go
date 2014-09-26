@@ -3,7 +3,6 @@ package codex
 // SelectManager manages a tree that compiles to a SQL select statement.
 type SelectManager struct {
 	Tree    *SelectStatementNode // The AST for the SQL SELECT statement.
-	Context *SelectCoreNode      // Reference to the Core the manager is curretly operating on.
 	Adapter adapter              // The SQL adapter.
 }
 
@@ -35,7 +34,7 @@ func (self *SelectManager) Select(projections ...interface{}) *SelectManager {
 			projection = UnqualifiedColumn(projection)
 		}
 
-		self.Context.Cols = append(self.Context.Cols, projection)
+		self.Tree.Cols = append(self.Tree.Cols, projection)
 	}
 
 	return self
@@ -60,7 +59,7 @@ func (self *SelectManager) Where(expr interface{}, args ...interface{}) *SelectM
 		expr = Grouping(expr)
 	}
 
-	self.Context.Wheres = append(self.Context.Wheres, expr)
+	self.Tree.Wheres = append(self.Tree.Wheres, expr)
 	return self
 }
 
@@ -80,9 +79,9 @@ func (self *SelectManager) Limit(take int) *SelectManager {
 func (self *SelectManager) InnerJoin(table interface{}) *SelectManager {
 	switch table.(type) {
 	case Accessor:
-		self.Context.Source.Right = append(self.Context.Source.Right, InnerJoin(table.(Accessor).Relation(), nil))
+		self.Tree.Source.Right = append(self.Tree.Source.Right, InnerJoin(table.(Accessor).Relation(), nil))
 	case *RelationNode:
-		self.Context.Source.Right = append(self.Context.Source.Right, InnerJoin(table.(*RelationNode), nil))
+		self.Tree.Source.Right = append(self.Tree.Source.Right, InnerJoin(table.(*RelationNode), nil))
 	}
 
 	return self
@@ -92,9 +91,9 @@ func (self *SelectManager) InnerJoin(table interface{}) *SelectManager {
 func (self *SelectManager) OuterJoin(table interface{}) *SelectManager {
 	switch table.(type) {
 	case Accessor:
-		self.Context.Source.Right = append(self.Context.Source.Right, OuterJoin(table.(Accessor).Relation(), nil))
+		self.Tree.Source.Right = append(self.Tree.Source.Right, OuterJoin(table.(Accessor).Relation(), nil))
 	case *RelationNode:
-		self.Context.Source.Right = append(self.Context.Source.Right, OuterJoin(table.(*RelationNode), nil))
+		self.Tree.Source.Right = append(self.Tree.Source.Right, OuterJoin(table.(*RelationNode), nil))
 	}
 
 	return self
@@ -103,7 +102,7 @@ func (self *SelectManager) OuterJoin(table interface{}) *SelectManager {
 // Sets the last stored Join's Right leaf to a OnNode containing the
 // given expression.
 func (self *SelectManager) On(expr interface{}) *SelectManager {
-	joins := self.Context.Source.Right
+	joins := self.Tree.Source.Right
 
 	if 0 == len(joins) {
 		return self
@@ -140,18 +139,18 @@ func (self *SelectManager) Group(groupings ...interface{}) *SelectManager {
 			group = Literal(str)
 		}
 
-		self.Context.Groups = append(self.Context.Groups, group)
+		self.Tree.Groups = append(self.Tree.Groups, group)
 	}
 	return self
 }
 
-// Sets the Context's Having member to the given expression.
+// Sets the Tree's Having member to the given expression.
 func (self *SelectManager) Having(expr interface{}) *SelectManager {
 	if str, ok := expr.(string); ok {
 		expr = Literal(str)
 	}
 
-	self.Context.Having = Having(expr)
+	self.Tree.Having = Having(expr)
 	return self
 }
 
@@ -164,39 +163,21 @@ func (self *SelectManager) Count(expr interface{}) *SelectManager {
 	cols := make([]interface{}, 1)
 	cols[0] = Count(expr)
 
-	ctx := &SelectCoreNode{
-		Relation: self.Context.Relation,
-		Source:   self.Context.Source,
-		Cols:     cols,
-		Wheres:   self.Context.Wheres,
-		Groups:   self.Context.Groups,
-		Having:   self.Context.Having,
-	}
-
 	tree := &SelectStatementNode{
-		Cores:      make([]*SelectCoreNode, len(self.Tree.Cores)),
+		Relation:   self.Tree.Relation,
+		Source:     self.Tree.Source,
+		Cols:       cols,
+		Wheres:     self.Tree.Wheres,
+		Groups:     self.Tree.Groups,
+		Having:     self.Tree.Having,
 		Orders:     make([]interface{}, 0),
 		Combinator: self.Tree.Combinator,
 		Limit:      self.Tree.Limit,
 		Offset:     self.Tree.Offset,
 	}
 
-	for i, c := range self.Tree.Cores {
-		core := &SelectCoreNode{
-
-			Relation: c.Relation,
-			Source:   c.Source,
-			Cols:     cols,
-			Wheres:   c.Wheres,
-			Groups:   c.Groups,
-			Having:   c.Having,
-		}
-		tree.Cores[i] = core
-	}
-
 	m := &SelectManager{
 		Tree:    tree,
-		Context: ctx,
 		Adapter: self.Adapter,
 	}
 
@@ -226,11 +207,11 @@ func (self *SelectManager) Except(manager *SelectManager) *SelectManager {
 
 // ToSql calls a visitor's Accept method based on the manager's SQL adapter.
 func (self *SelectManager) ToSql() (string, []interface{}, error) {
-	for _, core := range self.Tree.Cores {
-		if 0 == len(core.Cols) {
-			core.Cols = append(core.Cols, Attribute(Star(), core.Relation))
-		}
+	// for _, core := range self.Tree.Cores {
+	if 0 == len(self.Tree.Cols) {
+		self.Tree.Cols = append(self.Tree.Cols, Attribute(Star(), self.Tree.Relation))
 	}
+	// }
 
 	return VisitorFor(self.Adapter).Accept(self.Tree)
 }
@@ -239,7 +220,6 @@ func (self *SelectManager) ToSql() (string, []interface{}, error) {
 func Selection(relation *RelationNode) (m *SelectManager) {
 	m = new(SelectManager)
 	m.Tree = SelectStatement(relation)
-	m.Context = m.Tree.Cores[0]
 	m.Adapter = relation.Adapter
 	return
 }

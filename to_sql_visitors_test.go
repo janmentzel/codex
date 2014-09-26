@@ -323,34 +323,12 @@ func TestToSqlVisitorOuterJoinWithLiteral(t *testing.T) {
 	assert.Empty(t, args)
 }
 
-func TestToSqlVisitorSelectCore(t *testing.T) {
-	foo := Relation("foo")
-	sql, args, err := NewToSqlVisitor().Accept(SelectCore(foo))
-	assert.Nil(t, err)
-	assert.Equal(t, `SELECT * FROM "foo"`, sql)
-	assert.Empty(t, args)
-}
-
 func TestToSqlRelationSelect(t *testing.T) {
 	bar := Relation("bar")
 	sql, args, err := Relation("foo").Select("id", Column("company"), bar.Col("name")).ToSql()
 	assert.Nil(t, err)
 	assert.Equal(t, `SELECT "foo"."id","company","bar"."name" FROM "foo"`, sql)
 	assert.Empty(t, args)
-}
-
-func TestToSqlVisitorSelectCoreExtensive(t *testing.T) {
-	foo := Relation("foo")
-	bar := Relation("bar")
-	core := SelectCore(foo)
-	core.Cols = append(core.Cols, Column("id"), Column("name"))
-	core.Wheres = append(core.Wheres, Equal(foo.Col("id"), 1), NotEqual(foo.Col("name"), nil))
-	core.Source.Right = append(core.Source.Right, InnerJoin(bar, Literal("ON bar.id=foo.bar_id")))
-
-	sql, args, err := NewToSqlVisitor().Accept(core)
-	assert.Nil(t, err)
-	assert.Equal(t, `SELECT "id","name" FROM "foo" INNER JOIN "bar" ON bar.id=foo.bar_id WHERE "foo"."id"=? AND "foo"."name" IS NOT NULL`, sql)
-	assert.Equal(t, []interface{}{1}, args)
 }
 
 func TestToSqlVisitorSelectStatement(t *testing.T) {
@@ -361,6 +339,20 @@ func TestToSqlVisitorSelectStatement(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, `SELECT * FROM "table"`, sql)
 	assert.Empty(t, args)
+}
+
+func TestToSqlVisitorSelectStatementExtensive(t *testing.T) {
+	foo := Relation("foo")
+	bar := Relation("bar")
+	stm := SelectStatement(foo)
+	stm.Cols = append(stm.Cols, Column("id"), Column("name"))
+	stm.Wheres = append(stm.Wheres, Equal(foo.Col("id"), 1), NotEqual(foo.Col("name"), nil))
+	stm.Source.Right = append(stm.Source.Right, InnerJoin(bar, Literal("ON bar.id=foo.bar_id")))
+
+	sql, args, err := NewToSqlVisitor().Accept(stm)
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "id","name" FROM "foo" INNER JOIN "bar" ON bar.id=foo.bar_id WHERE "foo"."id"=? AND "foo"."name" IS NOT NULL`, sql)
+	assert.Equal(t, []interface{}{1}, args)
 }
 
 func TestToSqlVisitorUnion(t *testing.T) {

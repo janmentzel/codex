@@ -125,8 +125,6 @@ func (_ *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 		return visitor.VisitExcept(o.(*ExceptNode), visitor)
 
 	// Nary node visitors.
-	case *SelectCoreNode:
-		return visitor.VisitSelectCore(o.(*SelectCoreNode), visitor)
 	case *SelectStatementNode:
 		return visitor.VisitSelectStatement(o.(*SelectStatementNode), visitor)
 	case *InsertStatementNode:
@@ -497,7 +495,7 @@ func (_ *ToSqlVisitor) VisitExcept(o *ExceptNode, visitor VisitorInterface) (err
 
 // Begin Nary node visitors.
 
-func (_ *ToSqlVisitor) VisitSelectCore(o *SelectCoreNode, visitor VisitorInterface) (err error) {
+func (_ *ToSqlVisitor) VisitSelectCore(o *SelectStatementNode, visitor VisitorInterface) (err error) {
 
 	visitor.AppendSqlStr(SELECT)
 	n := len(o.Cols)
@@ -553,23 +551,22 @@ func (_ *ToSqlVisitor) VisitSelectCore(o *SelectCoreNode, visitor VisitorInterfa
 	if nil != o.Having {
 		err = visitor.Visit(o.Having, visitor)
 	}
-
 	return
 }
 
 func (_ *ToSqlVisitor) VisitSelectStatement(o *SelectStatementNode, visitor VisitorInterface) (err error) {
 
+	// Union, Intersect, Except
 	if nil != o.Combinator {
+		// TODO: do not change the tree
 		combinator := o.Combinator
 		o.Combinator = nil
 		return visitor.Visit(combinator, visitor)
 	}
 
-	for _, core := range o.Cores {
-		err = visitor.Visit(core, visitor)
-		if err != nil {
-			return
-		}
+	err = visitor.VisitSelectCore(o, visitor)
+	if err != nil {
+		return err
 	}
 
 	if length := len(o.Orders) - 1; 0 <= length {
