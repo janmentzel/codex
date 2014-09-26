@@ -623,9 +623,10 @@ func (_ *ToSqlVisitor) VisitInsertStatement(o *InsertStatementNode, visitor Visi
 			if index != length {
 				visitor.AppendSqlByte(COMMA)
 			} else {
-				visitor.AppendSqlByte(SPACE)
+				visitor.AppendSqlByte(')')
 			}
 		}
+		visitor.AppendSqlByte(SPACE)
 	}
 
 	err = visitor.Visit(o.Values, visitor)
