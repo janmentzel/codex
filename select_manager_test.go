@@ -108,3 +108,16 @@ func TestSelectManagerScopeWithFunc(t *testing.T) {
 	assert.Equal(t, `SELECT "users".* FROM "users" WHERE ("users"."owner_id"=?) AND ("users"."active") AND (id = ?)`, sql)
 	assert.Equal(t, []interface{}{77, 1}, args)
 }
+
+func TestSelectManagerModification(t *testing.T) {
+	users := Relation("users")
+	mgr := Selection(users)
+	mgr.Where("id > ?", 2).Limit(1)
+	mod := mgr.Modification()
+	mod.Set("name").To("new Name")
+	sql, args, err := mod.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `UPDATE "users" SET "name"=? WHERE (id > ?) LIMIT ?`, sql)
+	assert.Equal(t, []interface{}{"new Name", 2, 1}, args)
+
+}

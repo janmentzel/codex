@@ -35,11 +35,12 @@ func TestUpdateManagerScopeAndWhere(t *testing.T) {
 	mgr := Modification(users)
 	mgr.Scope(users.Col("owner_id").Eq(77))
 	mgr.Scope(users.Col("active"))
+	mgr.Limit(123)
 
 	sql, args, err := mgr.Set("id").To(2).Where("id = ?", 1).ToSql()
 	assert.Nil(t, err)
-	assert.Equal(t, `UPDATE "users" SET "id"=? WHERE ("users"."owner_id"=?) AND ("users"."active") AND (id = ?)`, sql)
-	assert.Equal(t, []interface{}{2, 77, 1}, args)
+	assert.Equal(t, `UPDATE "users" SET "id"=? WHERE ("users"."owner_id"=?) AND ("users"."active") AND (id = ?) LIMIT ?`, sql)
+	assert.Equal(t, []interface{}{2, 77, 1, 123}, args)
 }
 
 func TestUpdateManagerScopeWithFunc(t *testing.T) {
