@@ -66,3 +66,54 @@ func TestDeleteManagerScopeWithFunc(t *testing.T) {
 	assert.Equal(t, `DELETE FROM "users" WHERE ("users"."owner_id"=?) AND ("users"."active") AND (id = ?)`, sql)
 	assert.Equal(t, []interface{}{77, 1}, args)
 }
+
+func TestDeleteManagerSelection(t *testing.T) {
+	users := Relation("users")
+	mgr := Deletion(users)
+	scope1 := func(s Scoper) {
+		s.Scope(users.Col("owner_id").Eq(77))
+	}
+	mgr.Scopes(scope1).Limit(1)
+	mgr.Where("id > ?", 2).Limit(1)
+	sel := mgr.Selection()
+
+	sql, args, err := sel.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "users".* FROM "users" WHERE ("users"."owner_id"=?) AND (id > ?) LIMIT ?`, sql)
+	assert.Equal(t, []interface{}{77, 2, 1}, args)
+}
+
+func TestDeleteManagerInsertion(t *testing.T) {
+	users := Relation("users")
+	mgr := Deletion(users)
+	scope1 := func(s Scoper) {
+		s.Scope(users.Col("owner_id").Eq(77))
+	}
+
+	mgr.Scopes(scope1).Limit(1)
+	mgr.Where("id > ?", 2).Limit(1)
+
+	mod := mgr.Insertion()
+	mod.Insert("Undo").Into("name")
+
+	sql, args, err := mod.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `INSERT INTO "users" ("name") VALUES (?)`, sql)
+	assert.Equal(t, []interface{}{"Undo"}, args)
+}
+
+func TestDeleteManagerModification(t *testing.T) {
+	users := Relation("users")
+	mgr := Deletion(users)
+	scope1 := func(s Scoper) {
+		s.Scope(users.Col("owner_id").Eq(77))
+	}
+	mgr.Scopes(scope1).Limit(1)
+	mgr.Where("id > ?", 2).Limit(1)
+	mod := mgr.Modification()
+	mod.Set("name").To("new Name")
+	sql, args, err := mod.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `UPDATE "users" SET "name"=? WHERE ("users"."owner_id"=?) AND (id > ?) LIMIT ?`, sql)
+	assert.Equal(t, []interface{}{"new Name", 77, 2, 1}, args)
+}

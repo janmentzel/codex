@@ -51,6 +51,34 @@ func (self *DeleteManager) Limit(expr interface{}) *DeleteManager {
 	return self
 }
 
+// Selection returns a *SelectManager while keeping
+// wheres, limit and adapter
+func (self *DeleteManager) Selection() *SelectManager {
+	m := Selection(self.Tree.Relation)
+	m.Tree.Wheres = self.Tree.Wheres
+	m.Tree.Limit = self.Tree.Limit
+	m.Adapter = self.Adapter
+	return m
+}
+
+// Modification returns an *UpdateManager while keeping
+// wheres, limit and adapter
+func (self *DeleteManager) Modification() *UpdateManager {
+	m := Modification(self.Tree.Relation)
+	m.Tree.Wheres = self.Tree.Wheres
+	m.Tree.Limit = self.Tree.Limit
+	m.Adapter = self.Adapter
+	return m
+}
+
+// Insertion returns a *InsertManager while keeping
+// relation and adapter
+func (self *DeleteManager) Insertion() *InsertManager {
+	m := Insertion(self.Tree.Relation)
+	m.Adapter = self.Adapter
+	return m
+}
+
 // ToSql calls a visitor's Accept method based on the manager's SQL adapter.
 func (self *DeleteManager) ToSql() (string, []interface{}, error) {
 	return VisitorFor(self.Adapter).Accept(self.Tree)
