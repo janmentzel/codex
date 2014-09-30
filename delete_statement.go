@@ -4,6 +4,7 @@ package codex
 type DeleteStatementNode struct {
 	Relation *RelationNode // Pointer to the Relation the Delete Statement is acting on.
 	Wheres   []interface{} // Wheres is an array of expressions/nodes.
+	Limit    *LimitNode    // Potential Limit node for limiting the number of rows effected.
 }
 
 // DeleteStatementNode factory method.

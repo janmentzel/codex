@@ -154,6 +154,6 @@ func TestSelectManagerDeletion(t *testing.T) {
 	mod := mgr.Deletion()
 	sql, args, err := mod.ToSql()
 	assert.Nil(t, err)
-	assert.Equal(t, `DELETE FROM "users" WHERE ("users"."owner_id"=?) AND (id > ?)`, sql)
-	assert.Equal(t, []interface{}{77, 2}, args)
+	assert.Equal(t, `DELETE FROM "users" WHERE ("users"."owner_id"=?) AND (id > ?) LIMIT ?`, sql)
+	assert.Equal(t, []interface{}{77, 2, 1}, args)
 }

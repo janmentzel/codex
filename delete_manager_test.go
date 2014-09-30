@@ -17,6 +17,16 @@ func TestDeleteManager(t *testing.T) {
 	_, _, _ = mgr.ToSql()
 }
 
+func TestDeleteManagerLimit(t *testing.T) {
+	mgr := Deletion(Relation("users"))
+	mgr.Limit(1)
+
+	sql, args, err := mgr.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `DELETE FROM "users"  LIMIT ?`, sql)
+	assert.Equal(t, []interface{}{1}, args)
+}
+
 func TestDeleteManagerScope(t *testing.T) {
 	mgr := Deletion(Relation("users"))
 	mgr.Scope("owner_id=?", 77)

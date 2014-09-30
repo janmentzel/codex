@@ -224,6 +224,7 @@ func (self *SelectManager) Insertion() *InsertManager {
 func (self *SelectManager) Deletion() *DeleteManager {
 	m := Deletion(self.Tree.Relation)
 	m.Tree.Wheres = self.Tree.Wheres
+	m.Tree.Limit = self.Tree.Limit
 	m.Adapter = self.Adapter
 	return m
 }

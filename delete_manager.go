@@ -45,6 +45,12 @@ func (self *DeleteManager) Where(expr interface{}, args ...interface{}) *DeleteM
 	return self
 }
 
+// Limit Sets the Tree's Limit to the given integer.
+func (self *DeleteManager) Limit(expr interface{}) *DeleteManager {
+	self.Tree.Limit = Limit(expr)
+	return self
+}
+
 // ToSql calls a visitor's Accept method based on the manager's SQL adapter.
 func (self *DeleteManager) ToSql() (string, []interface{}, error) {
 	return VisitorFor(self.Adapter).Accept(self.Tree)

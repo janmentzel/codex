@@ -712,6 +712,14 @@ func (_ *ToSqlVisitor) VisitDeleteStatement(o *DeleteStatementNode, visitor Visi
 		}
 	}
 
+	if nil != o.Limit {
+		visitor.AppendSqlByte(SPACE)
+		err = visitor.Visit(o.Limit, visitor)
+		if err != nil {
+			return
+		}
+	}
+
 	return
 }
 
