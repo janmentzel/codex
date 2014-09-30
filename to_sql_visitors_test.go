@@ -416,11 +416,13 @@ func TestToSqlVisitorInsertStatement(t *testing.T) {
 func TestToSqlVisitorUpdateStatement(t *testing.T) {
 	relation := Relation("table")
 	stmt := UpdateStatement(relation)
+	stmt.Values = []interface{}{Assignment(UnqualifiedColumn("name"), "Undo")}
+	stmt.Limit = Limit(1)
 
 	sql, args, err := NewToSqlVisitor().Accept(stmt)
 	assert.Nil(t, err)
-	assert.Equal(t, `UPDATE "table" `, sql)
-	assert.Empty(t, args)
+	assert.Equal(t, `UPDATE "table" SET "name"=?  LIMIT ?`, sql)
+	assert.Equal(t, []interface{}{"Undo", 1}, args)
 }
 
 func TestToSqlVisitorDeleteStatement(t *testing.T) {

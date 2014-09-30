@@ -205,13 +205,34 @@ func (self *SelectManager) Except(manager *SelectManager) *SelectManager {
 	return self
 }
 
+// Modification returns an *UpdateManager while keeping
+// wheres, limit and adapter
+func (self *SelectManager) Modification() *UpdateManager {
+	m := Modification(self.Tree.Relation)
+	m.Tree.Wheres = self.Tree.Wheres
+	m.Tree.Limit = self.Tree.Limit
+	m.Adapter = self.Adapter
+	return m
+}
+
+func (self *SelectManager) Insertion() *InsertManager {
+	m := Insertion(self.Tree.Relation)
+	m.Adapter = self.Adapter
+	return m
+}
+
+func (self *SelectManager) Deletion() *DeleteManager {
+	m := Deletion(self.Tree.Relation)
+	m.Tree.Wheres = self.Tree.Wheres
+	m.Adapter = self.Adapter
+	return m
+}
+
 // ToSql calls a visitor's Accept method based on the manager's SQL adapter.
 func (self *SelectManager) ToSql() (string, []interface{}, error) {
-	// for _, core := range self.Tree.Cores {
 	if 0 == len(self.Tree.Cols) {
 		self.Tree.Cols = append(self.Tree.Cols, Attribute(Star(), self.Tree.Relation))
 	}
-	// }
 
 	return VisitorFor(self.Adapter).Accept(self.Tree)
 }
