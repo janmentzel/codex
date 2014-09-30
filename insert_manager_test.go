@@ -28,3 +28,37 @@ func TestInsertManagerInsert(t *testing.T) {
 	assert.Equal(t, `INSERT INTO "users" ("first_name","last_name","age") VALUES (?,?,?)`, sql)
 	assert.Equal(t, []interface{}{"john", "doe", "33"}, args)
 }
+
+func TestInsertManagerSelection(t *testing.T) {
+	users := Relation("users")
+	mgr := Insertion(users)
+
+	sel := mgr.Selection()
+
+	sql, args, err := sel.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "users".* FROM "users"`, sql)
+	assert.Empty(t, args)
+}
+
+func TestInsertManagerModification(t *testing.T) {
+	users := Relation("users")
+	mgr := Insertion(users)
+
+	mod := mgr.Modification()
+	sql, args, err := mod.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `UPDATE "users" `, sql)
+	assert.Empty(t, args)
+}
+
+func TestInsertManagerDeletion(t *testing.T) {
+	users := Relation("users")
+	mgr := Insertion(users)
+
+	mod := mgr.Deletion()
+	sql, args, err := mod.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `DELETE FROM "users" `, sql)
+	assert.Empty(t, args)
+}

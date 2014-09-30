@@ -30,6 +30,30 @@ func (self *InsertManager) Returning(column interface{}) *InsertManager {
 	return self
 }
 
+// Selection returns a *SelectManager while keeping
+// Relation and adapter
+func (self *InsertManager) Selection() *SelectManager {
+	m := Selection(self.Tree.Relation)
+	m.Adapter = self.Adapter
+	return m
+}
+
+// Modification returns an *UpdateManager wwhile keeping
+// Relation and adapter
+func (self *InsertManager) Modification() *UpdateManager {
+	m := Modification(self.Tree.Relation)
+	m.Adapter = self.Adapter
+	return m
+}
+
+// Deletion returns a *DeleteManager while keeping
+// Relation and adapter
+func (self *InsertManager) Deletion() *DeleteManager {
+	m := Deletion(self.Tree.Relation)
+	m.Adapter = self.Adapter
+	return m
+}
+
 // ToSql calls a visitor's Accept method based on the manager's SQL adapter.
 func (self *InsertManager) ToSql() (string, []interface{}, error) {
 	return VisitorFor(self.Adapter).Accept(self.Tree)
