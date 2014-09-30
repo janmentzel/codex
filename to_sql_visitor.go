@@ -156,7 +156,7 @@ func (_ *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 	case bool:
 		return visitor.VisitBool(o, visitor)
 	default:
-		return errors.New(fmt.Sprintf("No visitor method for <%T>.", o))
+		return errors.New(fmt.Sprintf("codex: No visitor method for <%T>.", o))
 	}
 }
 
