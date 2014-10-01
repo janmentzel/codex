@@ -1,7 +1,7 @@
 package codex
 
 import (
-	// "errors"
+	"errors"
 	"fmt"
 )
 
@@ -159,7 +159,6 @@ func (_ *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 		visitor.AppendSqlByte(QUESTION)
 		visitor.AppendArg(o)
 		return nil
-		// return errors.New(fmt.Sprintf("No visitor method for <%T>.", o))
 	}
 }
 
