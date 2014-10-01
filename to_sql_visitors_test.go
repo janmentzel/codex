@@ -7,9 +7,9 @@ import (
 
 func TestToSqlVisitorAccept(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(nil)
-	assert.NotNil(t, err)
-	assert.Equal(t, "", sql)
-	assert.Empty(t, args)
+	assert.Nil(t, err)
+	assert.Equal(t, "?", sql)
+	assert.Equal(t, []interface{}{nil}, args)
 }
 
 func TestToSqlVisitorGrouping(t *testing.T) {

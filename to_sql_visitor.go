@@ -1,7 +1,7 @@
 package codex
 
 import (
-	"errors"
+	// "errors"
 	"fmt"
 )
 
@@ -156,7 +156,10 @@ func (_ *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 	case bool:
 		return visitor.VisitBool(o, visitor)
 	default:
-		return errors.New(fmt.Sprintf("No visitor method for <%T>.", o))
+		visitor.AppendSqlByte(QUESTION)
+		visitor.AppendArg(o)
+		return nil
+		// return errors.New(fmt.Sprintf("No visitor method for <%T>.", o))
 	}
 }
 
