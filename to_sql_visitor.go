@@ -1,7 +1,6 @@
 package codex
 
 import (
-	"errors"
 	"fmt"
 )
 
