@@ -41,10 +41,17 @@ func TestToSqlVisitorExtensiveGrouping(t *testing.T) {
 }
 
 func TestToSqlVisitorEqual(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(Equal(1, 2))
+	sql, args, err := NewToSqlVisitor().Accept(Equal(Column("a"), 2))
 	assert.Nil(t, err)
-	assert.Equal(t, "?=?", sql)
-	assert.Equal(t, []interface{}{1, 2}, args)
+	assert.Equal(t, `"a"=?`, sql)
+	assert.Equal(t, []interface{}{2}, args)
+}
+
+func TestToSqlVisitorEqualNil(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Equal(Column("a"), nil))
+	assert.Nil(t, err)
+	assert.Equal(t, `"a" IS NULL`, sql)
+	assert.Empty(t, args)
 }
 
 func TestToSqlVisitorNotEqual(t *testing.T) {
@@ -173,6 +180,15 @@ func TestToSqlVisitorCountEmpty(t *testing.T) {
 	assert.Empty(t, args)
 }
 
+func TestToSqlVisitorCountEmptyAlias(t *testing.T) {
+	c := Count()
+	c.Alias = "n"
+	sql, args, err := NewToSqlVisitor().Accept(c)
+	assert.Nil(t, err)
+	assert.Equal(t, `COUNT(*) AS "n"`, sql)
+	assert.Empty(t, args)
+}
+
 func TestToSqlVisitorSumInt(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(Sum(1))
 	assert.Nil(t, err)
@@ -226,6 +242,15 @@ func TestToSqlVisitorMaximumCol(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(Maximum(Column("amount")))
 	assert.Nil(t, err)
 	assert.Equal(t, `MAX("amount")`, sql)
+	assert.Empty(t, args)
+}
+
+func TestToSqlVisitorMaximumColAlias(t *testing.T) {
+	max := Maximum(Column("amount"))
+	max.Alias = "max_amount"
+	sql, args, err := NewToSqlVisitor().Accept(max)
+	assert.Nil(t, err)
+	assert.Equal(t, `MAX("amount") AS "max_amount"`, sql)
 	assert.Empty(t, args)
 }
 
@@ -423,6 +448,18 @@ func TestToSqlVisitorUpdateStatement(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, `UPDATE "table" SET "name"=?  LIMIT ?`, sql)
 	assert.Equal(t, []interface{}{"Undo", 1}, args)
+}
+
+func TestToSqlVisitorUpdateStatementTwoCols(t *testing.T) {
+	relation := Relation("table")
+	stmt := UpdateStatement(relation)
+	stmt.Values = []interface{}{Assignment(UnqualifiedColumn("name"), "Undo"), Assignment(UnqualifiedColumn("enabled"), true)}
+	stmt.Limit = Limit(1)
+
+	sql, args, err := NewToSqlVisitor().Accept(stmt)
+	assert.Nil(t, err)
+	assert.Equal(t, `UPDATE "table" SET "name"=?,"enabled"=?  LIMIT ?`, sql)
+	assert.Equal(t, []interface{}{"Undo", true, 1}, args)
 }
 
 func TestToSqlVisitorDeleteStatement(t *testing.T) {

@@ -730,8 +730,33 @@ func (_ *ToSqlVisitor) VisitDeleteStatement(o *DeleteStatementNode, visitor Visi
 
 // End Function node visitors.
 
-func (_ *ToSqlVisitor) VisitCount(o *CountNode, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlStr("COUNT(")
+func (v *ToSqlVisitor) VisitCount(o *CountNode, visitor VisitorInterface) (err error) {
+	visitor.AppendSqlStr("COUNT")
+	return v.distinctExpressionsAlias((*FunctionNode)(o), visitor)
+}
+
+func (v *ToSqlVisitor) VisitAverage(o *AverageNode, visitor VisitorInterface) (err error) {
+	visitor.AppendSqlStr("AVG")
+	return v.distinctExpressionsAlias((*FunctionNode)(o), visitor)
+}
+
+func (v *ToSqlVisitor) VisitSum(o *SumNode, visitor VisitorInterface) (err error) {
+	visitor.AppendSqlStr("SUM")
+	return v.distinctExpressionsAlias((*FunctionNode)(o), visitor)
+}
+
+func (v *ToSqlVisitor) VisitMaximum(o *MaximumNode, visitor VisitorInterface) (err error) {
+	visitor.AppendSqlStr("MAX")
+	return v.distinctExpressionsAlias((*FunctionNode)(o), visitor)
+}
+
+func (v *ToSqlVisitor) VisitMinimum(o *MinimumNode, visitor VisitorInterface) (err error) {
+	visitor.AppendSqlStr("MIN")
+	return v.distinctExpressionsAlias((*FunctionNode)(o), visitor)
+}
+
+func (_ *ToSqlVisitor) distinctExpressionsAlias(o *FunctionNode, visitor VisitorInterface) (err error) {
+	visitor.AppendSqlByte('(')
 
 	if o.Distinct {
 		visitor.AppendSqlStr("DISTINCT ")
@@ -740,137 +765,24 @@ func (_ *ToSqlVisitor) VisitCount(o *CountNode, visitor VisitorInterface) (err e
 	if o.Expressions == nil {
 		visitor.AppendSqlByte(STAR)
 	} else {
-		n := len(o.Expressions) - 1
-		for i, expression := range o.Expressions {
-			err = visitor.Visit(expression, visitor)
-			if err != nil {
-				return
-			}
-			if i != n {
-				visitor.AppendSqlByte(COMMA)
+		if length := len(o.Expressions) - 1; 0 <= length {
+			for index, expression := range o.Expressions {
+				err = visitor.Visit(expression, visitor)
+				if err != nil {
+					return
+				}
+				if index != length {
+					visitor.AppendSqlByte(COMMA)
+				}
 			}
 		}
 	}
-
 	visitor.AppendSqlByte(')')
 
 	if nil != o.Alias {
 		visitor.AppendSqlStr(AS)
-		err = visitor.Visit(o.Alias, visitor)
+		visitor.QuoteTableName(o.Alias, visitor)
 	}
-
-	return
-}
-
-func (_ *ToSqlVisitor) VisitAverage(o *AverageNode, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlStr("AVG(")
-
-	if o.Distinct {
-		visitor.AppendSqlStr("DISTINCT ")
-	}
-
-	if length := len(o.Expressions) - 1; 0 <= length {
-		for index, expression := range o.Expressions {
-			err = visitor.Visit(expression, visitor)
-			if err != nil {
-				return
-			}
-			if index != length {
-				visitor.AppendSqlByte(COMMA)
-			}
-		}
-		visitor.AppendSqlByte(')')
-	}
-
-	if nil != o.Alias {
-		visitor.AppendSqlStr(AS)
-		err = visitor.Visit(o.Alias, visitor)
-	}
-
-	return
-}
-
-func (_ *ToSqlVisitor) VisitSum(o *SumNode, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlStr("SUM(")
-
-	if o.Distinct {
-		visitor.AppendSqlStr("DISTINCT ")
-	}
-
-	if length := len(o.Expressions) - 1; 0 <= length {
-		for index, expression := range o.Expressions {
-			err = visitor.Visit(expression, visitor)
-			if err != nil {
-				return
-			}
-			if index != length {
-				visitor.AppendSqlByte(COMMA)
-			}
-		}
-		visitor.AppendSqlByte(')')
-	}
-
-	if nil != o.Alias {
-		visitor.AppendSqlStr(AS)
-		err = visitor.Visit(o.Alias, visitor)
-	}
-
-	return
-}
-
-func (_ *ToSqlVisitor) VisitMaximum(o *MaximumNode, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlStr("MAX(")
-
-	if o.Distinct {
-		visitor.AppendSqlStr("DISTINCT ")
-	}
-
-	if length := len(o.Expressions) - 1; 0 <= length {
-		for index, expression := range o.Expressions {
-			err = visitor.Visit(expression, visitor)
-			if err != nil {
-				return
-			}
-			if index != length {
-				visitor.AppendSqlByte(COMMA)
-			}
-		}
-		visitor.AppendSqlByte(')')
-	}
-
-	if nil != o.Alias {
-		visitor.AppendSqlStr(AS)
-		err = visitor.Visit(o.Alias, visitor)
-	}
-
-	return
-}
-
-func (_ *ToSqlVisitor) VisitMinimum(o *MinimumNode, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlStr("MIN(")
-
-	if o.Distinct {
-		visitor.AppendSqlStr("DISTINCT ")
-	}
-
-	if length := len(o.Expressions) - 1; 0 <= length {
-		for index, expression := range o.Expressions {
-			err = visitor.Visit(expression, visitor)
-			if err != nil {
-				return
-			}
-			if index != length {
-				visitor.AppendSqlByte(COMMA)
-			}
-		}
-		visitor.AppendSqlByte(')')
-	}
-
-	if nil != o.Alias {
-		visitor.AppendSqlStr(AS)
-		err = visitor.Visit(o.Alias, visitor)
-	}
-
 	return
 }
 
