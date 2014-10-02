@@ -4,6 +4,10 @@ import (
 	"fmt"
 )
 
+const (
+	MYSQL_QUOTE = '`'
+)
+
 type MySqlVisitor struct {
 	*ToSqlVisitor
 }
@@ -23,12 +27,24 @@ func (v *MySqlVisitor) Accept(o interface{}) (string, []interface{}, error) {
 // Begin Helpers.
 
 func (v *MySqlVisitor) QuoteTableName(o interface{}, visitor VisitorInterface) (err error) {
-	v.AppendSqlStr(fmt.Sprintf("`%v`", o))
+	s, ok := o.(string)
+	if !ok {
+		return fmt.Errorf("MySqlVisitor.QuoteTableName() expected string but got %#v", o)
+	}
+	visitor.AppendSqlByte(MYSQL_QUOTE)
+	visitor.AppendSqlStr(s)
+	visitor.AppendSqlByte(MYSQL_QUOTE)
 	return
 }
 
 func (v *MySqlVisitor) QuoteColumnName(o interface{}, visitor VisitorInterface) (err error) {
-	v.AppendSqlStr(fmt.Sprintf("`%v`", o))
+	s, ok := o.(string)
+	if !ok {
+		return fmt.Errorf("MySqlVisitor.QuoteColumnName() expected string but got %#v", o)
+	}
+	visitor.AppendSqlByte(MYSQL_QUOTE)
+	visitor.AppendSqlStr(s)
+	visitor.AppendSqlByte(MYSQL_QUOTE)
 	return
 }
 

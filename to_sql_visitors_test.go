@@ -549,3 +549,15 @@ func TestToSqlVisitorVisitBool(t *testing.T) {
 	assert.Equal(t, `?`, sql)
 	assert.Equal(t, []interface{}{true}, args)
 }
+
+func TestToSqlVisitorQuoteColumnName(t *testing.T) {
+	v := NewToSqlVisitor()
+	v.QuoteColumnName("foo_Bar1", v)
+	assert.Equal(t, `"foo_Bar1"`, v.String())
+}
+
+func TestToSqlVisitorQuoteTableName(t *testing.T) {
+	v := NewToSqlVisitor()
+	v.QuoteTableName("foo_Bar2", v)
+	assert.Equal(t, `"foo_Bar2"`, v.String())
+}

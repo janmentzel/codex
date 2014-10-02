@@ -17,6 +17,7 @@ const (
 	LT       = '<'
 	GTEQUAL  = ">="
 	LTEQUAL  = "<="
+	QUOTE    = '"'
 
 	// Keywords
 	SELECT   = `SELECT `
@@ -781,7 +782,7 @@ func (_ *ToSqlVisitor) distinctExpressionsAlias(o *FunctionNode, visitor Visitor
 
 	if nil != o.Alias {
 		visitor.AppendSqlStr(AS)
-		visitor.QuoteTableName(o.Alias, visitor)
+		visitor.QuoteColumnName(o.Alias, visitor)
 	}
 	return
 }
@@ -817,14 +818,24 @@ func (_ *ToSqlVisitor) VisitBool(o interface{}, visitor VisitorInterface) (err e
 // Begin Helpers.
 
 func (_ *ToSqlVisitor) QuoteTableName(o interface{}, visitor VisitorInterface) (err error) {
-	// TODO remove Sprintf  with (o).(Relation).Name
-	visitor.AppendSqlStr(fmt.Sprintf(`"%v"`, o))
+	s, ok := o.(string)
+	if !ok {
+		return fmt.Errorf("ToSqlVisitor.QuoteTableName() expected string but got %#v", o)
+	}
+	visitor.AppendSqlByte(QUOTE)
+	visitor.AppendSqlStr(s)
+	visitor.AppendSqlByte(QUOTE)
 	return
 }
 
 func (_ *ToSqlVisitor) QuoteColumnName(o interface{}, visitor VisitorInterface) (err error) {
-	// TODO remove Sprintf  with (o).(Table).Name
-	visitor.AppendSqlStr(fmt.Sprintf(`"%v"`, o))
+	s, ok := o.(string)
+	if !ok {
+		return fmt.Errorf("ToSqlVisitor.QuoteColumnName() expected string but got %#v", o)
+	}
+	visitor.AppendSqlByte(QUOTE)
+	visitor.AppendSqlStr(s)
+	visitor.AppendSqlByte(QUOTE)
 	return
 }
 

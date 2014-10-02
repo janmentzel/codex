@@ -1,7 +1,7 @@
 package codex
 
 import (
-	"fmt"
+	"strconv"
 )
 
 type PostgresVisitor struct {
@@ -26,7 +26,8 @@ func (v *PostgresVisitor) Accept(o interface{}) (string, []interface{}, error) {
 // TODO obsolete
 func (v *PostgresVisitor) VisitBinding(o *BindingNode, visitor VisitorInterface) (err error) {
 	v.Bindings += 1
-	v.AppendSqlStr(fmt.Sprintf("$%d", v.Bindings))
+	v.AppendSqlByte('$')
+	v.AppendSqlStr(strconv.Itoa(v.Bindings))
 	return
 }
 
