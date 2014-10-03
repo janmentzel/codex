@@ -54,7 +54,7 @@ func (self *DeleteManager) Limit(expr interface{}) *DeleteManager {
 // Selection returns a *SelectManager while keeping
 // wheres, limit and adapter
 func (self *DeleteManager) Selection() *SelectManager {
-	m := Selection(self.Tree.Relation)
+	m := Selection(self.Tree.Table)
 	m.Tree.Wheres = self.Tree.Wheres
 	m.Tree.Limit = self.Tree.Limit
 	m.Adapter = self.Adapter
@@ -64,7 +64,7 @@ func (self *DeleteManager) Selection() *SelectManager {
 // Modification returns an *UpdateManager while keeping
 // wheres, limit and adapter
 func (self *DeleteManager) Modification() *UpdateManager {
-	m := Modification(self.Tree.Relation)
+	m := Modification(self.Tree.Table)
 	m.Tree.Wheres = self.Tree.Wheres
 	m.Tree.Limit = self.Tree.Limit
 	m.Adapter = self.Adapter
@@ -74,7 +74,7 @@ func (self *DeleteManager) Modification() *UpdateManager {
 // Insertion returns a *InsertManager while keeping
 // relation and adapter
 func (self *DeleteManager) Insertion() *InsertManager {
-	m := Insertion(self.Tree.Relation)
+	m := Insertion(self.Tree.Table)
 	m.Adapter = self.Adapter
 	return m
 }
@@ -85,7 +85,7 @@ func (self *DeleteManager) ToSql() (string, []interface{}, error) {
 }
 
 // DeleteManager factory methods.
-func Deletion(relation *RelationNode) (m *DeleteManager) {
+func Deletion(relation *TableNode) (m *DeleteManager) {
 	m = new(DeleteManager)
 	m.Tree = DeleteStatement(relation)
 	m.Adapter = relation.Adapter

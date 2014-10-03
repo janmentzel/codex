@@ -2,7 +2,7 @@ package codex
 
 // SelectStatement is the base node for SQL Select Statements.
 type SelectStatementNode struct {
-	Relation   *RelationNode   // Pointer to the relation the SelectCore is acting on.
+	Table      *TableNode      // Pointer to the relation the SelectCore is acting on.
 	Source     *JoinSourceNode // JoinSouce for joining other SQL tables.
 	Cols       []interface{}   // Cols is an array, normally columns found on the SQL table.
 	Wheres     []interface{}   // Wheres is an array of filters for the acting on the SelectCore.
@@ -15,9 +15,9 @@ type SelectStatementNode struct {
 }
 
 // SelectStatementNode factory method.
-func SelectStatement(relation *RelationNode) (stm *SelectStatementNode) {
+func SelectStatement(relation *TableNode) (stm *SelectStatementNode) {
 	stm = new(SelectStatementNode)
-	stm.Relation = relation
+	stm.Table = relation
 	stm.Source = JoinSource(relation)
 	stm.Wheres = make([]interface{}, 0)
 	stm.Cols = make([]interface{}, 0)

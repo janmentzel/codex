@@ -6,7 +6,7 @@ import (
 )
 
 func TestSelectManager(t *testing.T) {
-	relation := Relation("table")
+	relation := Table("table")
 	mgr := Selection(relation)
 
 	// The following struct members should exist.
@@ -30,7 +30,7 @@ func TestSelectManager(t *testing.T) {
 }
 
 func TestSelectManagerWhereWithString(t *testing.T) {
-	mgr := Selection(Relation("users"))
+	mgr := Selection(Table("users"))
 	sql, args, err := mgr.Where("a").ToSql()
 	assert.Nil(t, err)
 	assert.Equal(t, `SELECT "users".* FROM "users" WHERE (a)`, sql)
@@ -38,7 +38,7 @@ func TestSelectManagerWhereWithString(t *testing.T) {
 }
 
 func TestSelectManagerWhereWithGrouping(t *testing.T) {
-	mgr := Selection(Relation("users"))
+	mgr := Selection(Table("users"))
 	sql, args, err := mgr.Where(Grouping(Literal("a"))).ToSql()
 	assert.Nil(t, err)
 	assert.Equal(t, `SELECT "users".* FROM "users" WHERE (a)`, sql)
@@ -46,7 +46,7 @@ func TestSelectManagerWhereWithGrouping(t *testing.T) {
 }
 
 func TestSelectManagerWhereWithEqual(t *testing.T) {
-	mgr := Selection(Relation("users"))
+	mgr := Selection(Table("users"))
 	sql, args, err := mgr.Where(Equal(Column("a"), Column("b"))).ToSql()
 	assert.Nil(t, err)
 	assert.Equal(t, `SELECT "users".* FROM "users" WHERE ("a"="b")`, sql)
@@ -54,7 +54,7 @@ func TestSelectManagerWhereWithEqual(t *testing.T) {
 }
 
 func TestSelectManagerWhereWithSqlAndArg(t *testing.T) {
-	mgr := Selection(Relation("users"))
+	mgr := Selection(Table("users"))
 	sql, args, err := mgr.Where("a = ?", 1).ToSql()
 	assert.Nil(t, err)
 	assert.Equal(t, `SELECT "users".* FROM "users" WHERE (a = ?)`, sql)
@@ -62,7 +62,7 @@ func TestSelectManagerWhereWithSqlAndArg(t *testing.T) {
 }
 
 func TestSelectManagerWhereWithSqlAndArgs(t *testing.T) {
-	mgr := Selection(Relation("users"))
+	mgr := Selection(Table("users"))
 	sql, args, err := mgr.Where("a = ? AND b = ?", 1, true).ToSql()
 	assert.Nil(t, err)
 	assert.Equal(t, `SELECT "users".* FROM "users" WHERE (a = ? AND b = ?)`, sql)
@@ -70,7 +70,7 @@ func TestSelectManagerWhereWithSqlAndArgs(t *testing.T) {
 }
 
 func TestSelectManagerScope(t *testing.T) {
-	mgr := Selection(Relation("users"))
+	mgr := Selection(Table("users"))
 	mgr.Scope("owner_id=?", 77)
 
 	sql, args, err := mgr.ToSql()
@@ -80,7 +80,7 @@ func TestSelectManagerScope(t *testing.T) {
 }
 
 func TestSelectManagerScopeAndWhere(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Selection(users)
 	mgr.Scope(users.Col("owner_id").Eq(77))
 	mgr.Scope(users.Col("active"))
@@ -92,7 +92,7 @@ func TestSelectManagerScopeAndWhere(t *testing.T) {
 }
 
 func TestSelectManagerScopeWithFunc(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Selection(users)
 
 	scope1 := func(s Scoper) {
@@ -110,7 +110,7 @@ func TestSelectManagerScopeWithFunc(t *testing.T) {
 }
 
 func TestSelectManagerModification(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Selection(users)
 	scope1 := func(s Scoper) {
 		s.Scope(users.Col("owner_id").Eq(77))
@@ -126,7 +126,7 @@ func TestSelectManagerModification(t *testing.T) {
 }
 
 func TestSelectManagerInsertion(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Selection(users)
 	scope1 := func(s Scoper) {
 		s.Scope(users.Col("owner_id").Eq(77))
@@ -144,7 +144,7 @@ func TestSelectManagerInsertion(t *testing.T) {
 }
 
 func TestSelectManagerDeletion(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Selection(users)
 	scope1 := func(s Scoper) {
 		s.Scope(users.Col("owner_id").Eq(77))

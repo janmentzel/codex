@@ -117,8 +117,8 @@ func TestToSqlVisitorExtensiveComparison(t *testing.T) {
 	assert.Equal(t, []interface{}{1, 2, 3, 4, 5}, args)
 }
 
-func TestToSqlVisitorUnaliasedRelation(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(Relation("table"))
+func TestToSqlVisitorUnaliasedTable(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Table("table"))
 	assert.Nil(t, err)
 	assert.Equal(t, `"table"`, sql)
 	assert.Empty(t, args)
@@ -132,21 +132,21 @@ func TestToSqlVisitorColumn(t *testing.T) {
 }
 
 func TestToSqlVisitorUnaliasedAttribute(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(Attribute(Column("column"), Relation("table")))
+	sql, args, err := NewToSqlVisitor().Accept(Attribute(Column("column"), Table("table")))
 	assert.Nil(t, err)
 	assert.Equal(t, `"table"."column"`, sql)
 	assert.Empty(t, args)
 }
 
 func TestToSqlVisitorJoinSource(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(JoinSource(Relation("table")))
+	sql, args, err := NewToSqlVisitor().Accept(JoinSource(Table("table")))
 	assert.Nil(t, err)
 	assert.Equal(t, `"table"`, sql)
 	assert.Empty(t, args)
 }
 
 func TestToSqlVisitorExtensiveJoinSource(t *testing.T) {
-	relation := Relation("table")
+	relation := Table("table")
 	source := JoinSource(relation)
 
 	// TODO append usefull stuff! not integers
@@ -332,15 +332,15 @@ func TestToSqlVisitorDescending(t *testing.T) {
 }
 
 func TestToSqlVisitorInnerJoin(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(InnerJoin(Relation("foo"), nil))
+	sql, args, err := NewToSqlVisitor().Accept(InnerJoin(Table("foo"), nil))
 	assert.Nil(t, err)
 	assert.Equal(t, `INNER JOIN "foo"`, sql)
 	assert.Empty(t, args)
 }
 
 func TestToSqlVisitorInnerJoinWithOn(t *testing.T) {
-	foo := Relation("foo")
-	bar := Relation("bar")
+	foo := Table("foo")
+	bar := Table("bar")
 	sql, args, err := NewToSqlVisitor().Accept(InnerJoin(foo, On(foo.Col("id").Eq(bar.Col("foo_id")))))
 	assert.Nil(t, err)
 	assert.Equal(t, `INNER JOIN "foo" ON "foo"."id"="bar"."foo_id"`, sql)
@@ -348,23 +348,23 @@ func TestToSqlVisitorInnerJoinWithOn(t *testing.T) {
 }
 
 func TestToSqlVisitorOuterJoinWithLiteral(t *testing.T) {
-	foo := Relation("foo")
+	foo := Table("foo")
 	sql, args, err := NewToSqlVisitor().Accept(OuterJoin(foo, On(Literal("foo.id = bar.foo_id"))))
 	assert.Nil(t, err)
 	assert.Equal(t, `LEFT OUTER JOIN "foo" ON foo.id = bar.foo_id`, sql)
 	assert.Empty(t, args)
 }
 
-func TestToSqlRelationSelect(t *testing.T) {
-	bar := Relation("bar")
-	sql, args, err := Relation("foo").Select("id", Column("company"), bar.Col("name")).ToSql()
+func TestToSqlTableSelect(t *testing.T) {
+	bar := Table("bar")
+	sql, args, err := Table("foo").Select("id", Column("company"), bar.Col("name")).ToSql()
 	assert.Nil(t, err)
 	assert.Equal(t, `SELECT "foo"."id","company","bar"."name" FROM "foo"`, sql)
 	assert.Empty(t, args)
 }
 
 func TestToSqlVisitorSelectStatement(t *testing.T) {
-	relation := Relation("table")
+	relation := Table("table")
 	stmt := SelectStatement(relation)
 
 	sql, args, err := NewToSqlVisitor().Accept(stmt)
@@ -374,8 +374,8 @@ func TestToSqlVisitorSelectStatement(t *testing.T) {
 }
 
 func TestToSqlVisitorSelectStatementExtensive(t *testing.T) {
-	foo := Relation("foo")
-	bar := Relation("bar")
+	foo := Table("foo")
+	bar := Table("bar")
 	stm := SelectStatement(foo)
 	stm.Cols = append(stm.Cols, Column("id"), Column("name"))
 	stm.Wheres = append(stm.Wheres, Equal(foo.Col("id"), 1), NotEqual(foo.Col("name"), nil))
@@ -388,9 +388,9 @@ func TestToSqlVisitorSelectStatementExtensive(t *testing.T) {
 }
 
 func TestToSqlVisitorUnion(t *testing.T) {
-	relationOne := Relation("table_one")
-	relationTwo := Relation("table_two")
-	relationThree := Relation("table_three")
+	relationOne := Table("table_one")
+	relationTwo := Table("table_two")
+	relationThree := Table("table_three")
 	one := SelectStatement(relationOne)
 	two := SelectStatement(relationTwo)
 	three := SelectStatement(relationThree)
@@ -404,9 +404,9 @@ func TestToSqlVisitorUnion(t *testing.T) {
 }
 
 func TestToSqlVisitorIntersect(t *testing.T) {
-	relationOne := Relation("table_one")
-	relationTwo := Relation("table_two")
-	relationThree := Relation("table_three")
+	relationOne := Table("table_one")
+	relationTwo := Table("table_two")
+	relationThree := Table("table_three")
 	one := SelectStatement(relationOne)
 	two := SelectStatement(relationTwo)
 	three := SelectStatement(relationThree)
@@ -420,9 +420,9 @@ func TestToSqlVisitorIntersect(t *testing.T) {
 }
 
 func TestToSqlVisitorExcept(t *testing.T) {
-	relationOne := Relation("table_one")
-	relationTwo := Relation("table_two")
-	relationThree := Relation("table_three")
+	relationOne := Table("table_one")
+	relationTwo := Table("table_two")
+	relationThree := Table("table_three")
 	one := SelectStatement(relationOne)
 	two := SelectStatement(relationTwo)
 	three := SelectStatement(relationThree)
@@ -436,7 +436,7 @@ func TestToSqlVisitorExcept(t *testing.T) {
 }
 
 func TestToSqlVisitorInsertStatement(t *testing.T) {
-	relation := Relation("table")
+	relation := Table("table")
 	stmt := InsertStatement(relation)
 
 	sql, args, err := NewToSqlVisitor().Accept(stmt)
@@ -446,7 +446,7 @@ func TestToSqlVisitorInsertStatement(t *testing.T) {
 }
 
 func TestToSqlVisitorUpdateStatement(t *testing.T) {
-	relation := Relation("table")
+	relation := Table("table")
 	stmt := UpdateStatement(relation)
 	stmt.Values = []interface{}{Assignment(UnqualifiedColumn("name"), "Undo")}
 	stmt.Limit = Limit(1)
@@ -458,7 +458,7 @@ func TestToSqlVisitorUpdateStatement(t *testing.T) {
 }
 
 func TestToSqlVisitorUpdateStatementTwoCols(t *testing.T) {
-	relation := Relation("table")
+	relation := Table("table")
 	stmt := UpdateStatement(relation)
 	stmt.Values = []interface{}{Assignment(UnqualifiedColumn("name"), "Undo"), Assignment(UnqualifiedColumn("enabled"), true)}
 	stmt.Limit = Limit(1)
@@ -470,7 +470,7 @@ func TestToSqlVisitorUpdateStatementTwoCols(t *testing.T) {
 }
 
 func TestToSqlVisitorDeleteStatement(t *testing.T) {
-	relation := Relation("table")
+	relation := Table("table")
 	stmt := DeleteStatement(relation)
 
 	sql, args, err := NewToSqlVisitor().Accept(stmt)

@@ -37,7 +37,7 @@ type VisitorInterface interface {
 	VisitUnlike(*UnlikeNode, VisitorInterface) error
 	VisitOr(*OrNode, VisitorInterface) error
 	VisitAnd(*AndNode, VisitorInterface) error
-	VisitRelation(*RelationNode, VisitorInterface) error
+	VisitTable(*TableNode, VisitorInterface) error
 	VisitAttribute(*AttributeNode, VisitorInterface) error
 	VisitInnerJoin(*InnerJoinNode, VisitorInterface) error
 	VisitOuterJoin(*OuterJoinNode, VisitorInterface) error

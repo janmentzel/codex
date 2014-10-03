@@ -2,8 +2,8 @@ package codex
 
 // AttributeNode is a specific Binary node.
 type AttributeNode struct {
-	Name     interface{}   // Name of the Attribute.
-	Relation *RelationNode // Relation the attribute belongs to.
+	Name  interface{} // Name of the Attribute.
+	Table *TableNode  // Table the attribute belongs to.
 }
 
 // Returns and Equal node containing a reference to the
@@ -79,9 +79,9 @@ func (self *AttributeNode) Desc() *DescendingNode {
 }
 
 // AttributeNode factory method.
-func Attribute(name interface{}, relation *RelationNode) (attribute *AttributeNode) {
+func Attribute(name interface{}, relation *TableNode) (attribute *AttributeNode) {
 	attribute = new(AttributeNode)
 	attribute.Name = name
-	attribute.Relation = relation
+	attribute.Table = relation
 	return
 }

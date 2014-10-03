@@ -6,7 +6,7 @@ import (
 )
 
 func TestUpdateManager(t *testing.T) {
-	relation := Relation("table")
+	relation := Table("table")
 	mgr := Modification(relation)
 
 	// The following struct members should exist.
@@ -21,7 +21,7 @@ func TestUpdateManager(t *testing.T) {
 }
 
 func TestUpdateManagerScope(t *testing.T) {
-	mgr := Modification(Relation("users"))
+	mgr := Modification(Table("users"))
 	mgr.Scope("owner_id=?", 77)
 
 	sql, args, err := mgr.Set("id").To(2).ToSql()
@@ -31,7 +31,7 @@ func TestUpdateManagerScope(t *testing.T) {
 }
 
 func TestUpdateManagerScopeAndWhere(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Modification(users)
 	mgr.Scope(users.Col("owner_id").Eq(77))
 	mgr.Scope(users.Col("active"))
@@ -44,7 +44,7 @@ func TestUpdateManagerScopeAndWhere(t *testing.T) {
 }
 
 func TestUpdateManagerScopeWithFunc(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Modification(users)
 
 	scope1 := func(s Scoper) {
@@ -62,7 +62,7 @@ func TestUpdateManagerScopeWithFunc(t *testing.T) {
 }
 
 func TestUpdateManagerSelection(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Modification(users)
 	scope1 := func(s Scoper) {
 		s.Scope(users.Col("owner_id").Eq(77))
@@ -78,7 +78,7 @@ func TestUpdateManagerSelection(t *testing.T) {
 }
 
 func TestUpdateManagerInsertion(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Modification(users)
 	scope1 := func(s Scoper) {
 		s.Scope(users.Col("owner_id").Eq(77))
@@ -97,7 +97,7 @@ func TestUpdateManagerInsertion(t *testing.T) {
 }
 
 func TestUpdateManagerDeletion(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Modification(users)
 	scope1 := func(s Scoper) {
 		s.Scope(users.Col("owner_id").Eq(77))

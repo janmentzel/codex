@@ -15,32 +15,32 @@ func ToggleDebugMode() {
 
 type DbDialect func(string) *AttributeNode
 
-func (db DbDialect) Table(name string) *RelationNode {
-	return db(name).Relation
+func (db DbDialect) Table(name string) *TableNode {
+	return db(name).Table
 }
 
 func Dialect(adapter adapter) DbDialect {
 	return func(tableName string) *AttributeNode {
-		table := Relation(tableName)
+		table := Table(tableName)
 		table.Adapter = adapter
 
 		return Attribute(tableName, table)
 	}
 }
 
-// deprecated
-// Table returns an Accessor from the managers package for
-// generating SQL to interact with existing tables.
-func Table(tableName string) Accessor {
-	table := Relation(tableName)
-	return func(colName interface{}) *AttributeNode {
-		if _, ok := colName.(string); ok {
-			return Attribute(Column(colName), table)
-		}
+// // deprecated
+// // Table returns an Accessor from the managers package for
+// // generating SQL to interact with existing tables.
+// func Table(tableName string) Accessor {
+// 	table := Table(tableName)
+// 	return func(colName interface{}) *AttributeNode {
+// 		if _, ok := colName.(string); ok {
+// 			return Attribute(Column(colName), table)
+// 		}
 
-		return Attribute(colName, table)
-	}
-}
+// 		return Attribute(colName, table)
+// 	}
+// }
 
 // Scoper enables scoping support for SelectManager, UpdateManager, DeleteManager
 type Scoper interface {

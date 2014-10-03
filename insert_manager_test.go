@@ -6,7 +6,7 @@ import (
 )
 
 func TestInsertManager(t *testing.T) {
-	relation := Relation("table")
+	relation := Table("table")
 	mgr := Insertion(relation)
 
 	// The following struct members should exist.
@@ -20,7 +20,7 @@ func TestInsertManager(t *testing.T) {
 }
 
 func TestInsertManagerInsert(t *testing.T) {
-	tlb := Relation("users")
+	tlb := Table("users")
 	mgr := Insertion(tlb)
 
 	sql, args, err := mgr.Insert("john", "doe", "33").Into("first_name", "last_name", "age").ToSql()
@@ -30,7 +30,7 @@ func TestInsertManagerInsert(t *testing.T) {
 }
 
 func TestInsertManagerSelection(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Insertion(users)
 
 	sel := mgr.Selection()
@@ -42,7 +42,7 @@ func TestInsertManagerSelection(t *testing.T) {
 }
 
 func TestInsertManagerModification(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Insertion(users)
 
 	mod := mgr.Modification()
@@ -53,7 +53,7 @@ func TestInsertManagerModification(t *testing.T) {
 }
 
 func TestInsertManagerDeletion(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Insertion(users)
 
 	mod := mgr.Deletion()

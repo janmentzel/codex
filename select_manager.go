@@ -79,9 +79,9 @@ func (self *SelectManager) Limit(take int) *SelectManager {
 func (self *SelectManager) InnerJoin(table interface{}) *SelectManager {
 	switch table.(type) {
 	case Accessor:
-		self.Tree.Source.Right = append(self.Tree.Source.Right, InnerJoin(table.(Accessor).Relation(), nil))
-	case *RelationNode:
-		self.Tree.Source.Right = append(self.Tree.Source.Right, InnerJoin(table.(*RelationNode), nil))
+		self.Tree.Source.Right = append(self.Tree.Source.Right, InnerJoin(table.(Accessor).Table(), nil))
+	case *TableNode:
+		self.Tree.Source.Right = append(self.Tree.Source.Right, InnerJoin(table.(*TableNode), nil))
 	}
 
 	return self
@@ -91,9 +91,9 @@ func (self *SelectManager) InnerJoin(table interface{}) *SelectManager {
 func (self *SelectManager) OuterJoin(table interface{}) *SelectManager {
 	switch table.(type) {
 	case Accessor:
-		self.Tree.Source.Right = append(self.Tree.Source.Right, OuterJoin(table.(Accessor).Relation(), nil))
-	case *RelationNode:
-		self.Tree.Source.Right = append(self.Tree.Source.Right, OuterJoin(table.(*RelationNode), nil))
+		self.Tree.Source.Right = append(self.Tree.Source.Right, OuterJoin(table.(Accessor).Table(), nil))
+	case *TableNode:
+		self.Tree.Source.Right = append(self.Tree.Source.Right, OuterJoin(table.(*TableNode), nil))
 	}
 
 	return self
@@ -164,7 +164,7 @@ func (self *SelectManager) Count(expr interface{}) *SelectManager {
 	cols[0] = Count(expr)
 
 	tree := &SelectStatementNode{
-		Relation:   self.Tree.Relation,
+		Table:      self.Tree.Table,
 		Source:     self.Tree.Source,
 		Cols:       cols,
 		Wheres:     self.Tree.Wheres,
@@ -208,7 +208,7 @@ func (self *SelectManager) Except(manager *SelectManager) *SelectManager {
 // Modification returns an *UpdateManager while keeping
 // wheres, limit and adapter
 func (self *SelectManager) Modification() *UpdateManager {
-	m := Modification(self.Tree.Relation)
+	m := Modification(self.Tree.Table)
 	m.Tree.Wheres = self.Tree.Wheres
 	m.Tree.Limit = self.Tree.Limit
 	m.Adapter = self.Adapter
@@ -216,13 +216,13 @@ func (self *SelectManager) Modification() *UpdateManager {
 }
 
 func (self *SelectManager) Insertion() *InsertManager {
-	m := Insertion(self.Tree.Relation)
+	m := Insertion(self.Tree.Table)
 	m.Adapter = self.Adapter
 	return m
 }
 
 func (self *SelectManager) Deletion() *DeleteManager {
-	m := Deletion(self.Tree.Relation)
+	m := Deletion(self.Tree.Table)
 	m.Tree.Wheres = self.Tree.Wheres
 	m.Tree.Limit = self.Tree.Limit
 	m.Adapter = self.Adapter
@@ -232,14 +232,14 @@ func (self *SelectManager) Deletion() *DeleteManager {
 // ToSql calls a visitor's Accept method based on the manager's SQL adapter.
 func (self *SelectManager) ToSql() (string, []interface{}, error) {
 	if 0 == len(self.Tree.Cols) {
-		self.Tree.Cols = append(self.Tree.Cols, Attribute(Star(), self.Tree.Relation))
+		self.Tree.Cols = append(self.Tree.Cols, Attribute(Star(), self.Tree.Table))
 	}
 
 	return VisitorFor(self.Adapter).Accept(self.Tree)
 }
 
 // SelectManager factory method.
-func Selection(relation *RelationNode) (m *SelectManager) {
+func Selection(relation *TableNode) (m *SelectManager) {
 	m = new(SelectManager)
 	m.Tree = SelectStatement(relation)
 	m.Adapter = relation.Adapter

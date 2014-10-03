@@ -105,8 +105,8 @@ func (_ *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 		return visitor.VisitOr(o.(*OrNode), visitor)
 	case *AndNode:
 		return visitor.VisitAnd(o.(*AndNode), visitor)
-	case *RelationNode:
-		return visitor.VisitRelation(o.(*RelationNode), visitor)
+	case *TableNode:
+		return visitor.VisitTable(o.(*TableNode), visitor)
 	case *AttributeNode:
 		return visitor.VisitAttribute(o.(*AttributeNode), visitor)
 	case *InnerJoinNode:
@@ -360,7 +360,7 @@ func (_ *ToSqlVisitor) VisitAnd(o *AndNode, visitor VisitorInterface) (err error
 	return
 }
 
-func (_ *ToSqlVisitor) VisitRelation(o *RelationNode, visitor VisitorInterface) (err error) {
+func (_ *ToSqlVisitor) VisitTable(o *TableNode, visitor VisitorInterface) (err error) {
 	if o.Alias != nil {
 		return visitor.QuoteTableName(o.Alias, visitor)
 	}
@@ -369,7 +369,7 @@ func (_ *ToSqlVisitor) VisitRelation(o *RelationNode, visitor VisitorInterface) 
 }
 
 func (_ *ToSqlVisitor) VisitAttribute(o *AttributeNode, visitor VisitorInterface) (err error) {
-	err = visitor.Visit(o.Relation, visitor)
+	err = visitor.Visit(o.Table, visitor)
 	if err != nil {
 		return
 	}
@@ -595,7 +595,7 @@ func (_ *ToSqlVisitor) VisitSelectStatement(o *SelectStatementNode, visitor Visi
 func (_ *ToSqlVisitor) VisitInsertStatement(o *InsertStatementNode, visitor VisitorInterface) (err error) {
 
 	visitor.AppendSqlStr("INSERT INTO ")
-	err = visitor.Visit(o.Relation, visitor)
+	err = visitor.Visit(o.Table, visitor)
 	if err != nil {
 		return
 	}
@@ -639,7 +639,7 @@ func (_ *ToSqlVisitor) VisitInsertStatement(o *InsertStatementNode, visitor Visi
 func (_ *ToSqlVisitor) VisitUpdateStatement(o *UpdateStatementNode, visitor VisitorInterface) (err error) {
 
 	visitor.AppendSqlStr("UPDATE ")
-	err = visitor.Visit(o.Relation, visitor)
+	err = visitor.Visit(o.Table, visitor)
 	if err != nil {
 		return
 	}
@@ -687,7 +687,7 @@ func (_ *ToSqlVisitor) VisitUpdateStatement(o *UpdateStatementNode, visitor Visi
 func (_ *ToSqlVisitor) VisitDeleteStatement(o *DeleteStatementNode, visitor VisitorInterface) (err error) {
 
 	visitor.AppendSqlStr("DELETE FROM ")
-	err = visitor.Visit(o.Relation, visitor)
+	err = visitor.Visit(o.Table, visitor)
 	if err != nil {
 		return
 	}

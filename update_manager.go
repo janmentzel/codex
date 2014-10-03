@@ -71,7 +71,7 @@ func (self *UpdateManager) Limit(expr interface{}) *UpdateManager {
 // Selection returns a *SelectManager while keeping
 // wheres, limit and adapter
 func (self *UpdateManager) Selection() *SelectManager {
-	m := Selection(self.Tree.Relation)
+	m := Selection(self.Tree.Table)
 	m.Tree.Wheres = self.Tree.Wheres
 	m.Tree.Limit = self.Tree.Limit
 	m.Adapter = self.Adapter
@@ -81,7 +81,7 @@ func (self *UpdateManager) Selection() *SelectManager {
 // Insertion returns a *InsertManager while keeping
 // relation and adapter
 func (self *UpdateManager) Insertion() *InsertManager {
-	m := Insertion(self.Tree.Relation)
+	m := Insertion(self.Tree.Table)
 	m.Adapter = self.Adapter
 	return m
 }
@@ -89,7 +89,7 @@ func (self *UpdateManager) Insertion() *InsertManager {
 // Deletion returns a *DeleteManager while keeping
 // wheres, limit and adapter
 func (self *UpdateManager) Deletion() *DeleteManager {
-	m := Deletion(self.Tree.Relation)
+	m := Deletion(self.Tree.Table)
 	m.Tree.Wheres = self.Tree.Wheres
 	m.Tree.Limit = self.Tree.Limit
 	m.Adapter = self.Adapter
@@ -102,7 +102,7 @@ func (self *UpdateManager) ToSql() (string, []interface{}, error) {
 }
 
 // UpdateManager factory method.
-func Modification(relation *RelationNode) (m *UpdateManager) {
+func Modification(relation *TableNode) (m *UpdateManager) {
 	m = new(UpdateManager)
 	m.Tree = UpdateStatement(relation)
 	m.Adapter = relation.Adapter

@@ -6,7 +6,7 @@ import (
 )
 
 func TestDeleteManager(t *testing.T) {
-	relation := Relation("table")
+	relation := Table("table")
 	mgr := Deletion(relation)
 
 	// The following struct members should exist.
@@ -18,7 +18,7 @@ func TestDeleteManager(t *testing.T) {
 }
 
 func TestDeleteManagerLimit(t *testing.T) {
-	mgr := Deletion(Relation("users"))
+	mgr := Deletion(Table("users"))
 	mgr.Limit(1)
 
 	sql, args, err := mgr.ToSql()
@@ -28,7 +28,7 @@ func TestDeleteManagerLimit(t *testing.T) {
 }
 
 func TestDeleteManagerScope(t *testing.T) {
-	mgr := Deletion(Relation("users"))
+	mgr := Deletion(Table("users"))
 	mgr.Scope("owner_id=?", 77)
 
 	sql, args, err := mgr.ToSql()
@@ -38,7 +38,7 @@ func TestDeleteManagerScope(t *testing.T) {
 }
 
 func TestDeleteManagerScopeAndWhere(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Deletion(users)
 	mgr.Scope(users.Col("owner_id").Eq(77))
 	mgr.Scope(users.Col("active"))
@@ -50,7 +50,7 @@ func TestDeleteManagerScopeAndWhere(t *testing.T) {
 }
 
 func TestDeleteManagerScopeWithFunc(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Deletion(users)
 
 	scope1 := func(s Scoper) {
@@ -68,7 +68,7 @@ func TestDeleteManagerScopeWithFunc(t *testing.T) {
 }
 
 func TestDeleteManagerSelection(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Deletion(users)
 	scope1 := func(s Scoper) {
 		s.Scope(users.Col("owner_id").Eq(77))
@@ -84,7 +84,7 @@ func TestDeleteManagerSelection(t *testing.T) {
 }
 
 func TestDeleteManagerInsertion(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Deletion(users)
 	scope1 := func(s Scoper) {
 		s.Scope(users.Col("owner_id").Eq(77))
@@ -103,7 +103,7 @@ func TestDeleteManagerInsertion(t *testing.T) {
 }
 
 func TestDeleteManagerModification(t *testing.T) {
-	users := Relation("users")
+	users := Table("users")
 	mgr := Deletion(users)
 	scope1 := func(s Scoper) {
 		s.Scope(users.Col("owner_id").Eq(77))

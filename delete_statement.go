@@ -2,14 +2,14 @@ package codex
 
 // DeleteStatement is the base node for SQL Delete Statements.
 type DeleteStatementNode struct {
-	Relation *RelationNode // Pointer to the Relation the Delete Statement is acting on.
-	Wheres   []interface{} // Wheres is an array of expressions/nodes.
-	Limit    *LimitNode    // Potential Limit node for limiting the number of rows effected.
+	Table  *TableNode    // Pointer to the Table the Delete Statement is acting on.
+	Wheres []interface{} // Wheres is an array of expressions/nodes.
+	Limit  *LimitNode    // Potential Limit node for limiting the number of rows effected.
 }
 
 // DeleteStatementNode factory method.
-func DeleteStatement(relation *RelationNode) (statement *DeleteStatementNode) {
+func DeleteStatement(relation *TableNode) (statement *DeleteStatementNode) {
 	statement = new(DeleteStatementNode)
-	statement.Relation = relation
+	statement.Table = relation
 	return
 }

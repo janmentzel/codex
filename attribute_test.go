@@ -5,11 +5,11 @@ import (
 )
 
 func TestAttribute(t *testing.T) {
-	attr := Attribute("column", Relation("table"))
+	attr := Attribute("column", Table("table"))
 
 	// The following struct members should exist.
 	_ = attr.Name
-	_ = attr.Relation
+	_ = attr.Table
 
 	// The following receiver methods should exist.
 	_ = attr.And(1)
