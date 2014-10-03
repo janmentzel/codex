@@ -61,12 +61,6 @@ type VisitorInterface interface {
 	VisitMaximum(*MaximumNode, VisitorInterface) error
 	VisitMinimum(*MinimumNode, VisitorInterface) error
 
-	// Base visitors.
-	VisitString(interface{}, VisitorInterface) error
-	VisitInteger(interface{}, VisitorInterface) error
-	VisitFloat(interface{}, VisitorInterface) error
-	VisitBool(interface{}, VisitorInterface) error
-
 	// Helpers.
 	QuoteTableName(interface{}, VisitorInterface) error
 	QuoteColumnName(interface{}, VisitorInterface) error

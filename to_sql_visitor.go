@@ -146,15 +146,7 @@ func (_ *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 	case *MinimumNode:
 		return visitor.VisitMinimum(o.(*MinimumNode), visitor)
 
-	// Base visitors.
-	case string:
-		return visitor.VisitString(o, visitor)
-	case int, int16, int32, int64:
-		return visitor.VisitInteger(o, visitor)
-	case float32, float64:
-		return visitor.VisitFloat(o, visitor)
-	case bool:
-		return visitor.VisitBool(o, visitor)
+	// Base visitor.
 	default:
 		visitor.AppendSqlByte(QUESTION)
 		visitor.AppendArg(o)
@@ -786,34 +778,6 @@ func (_ *ToSqlVisitor) distinctExpressionsAlias(o *FunctionNode, visitor Visitor
 }
 
 // End Function node visitors.
-
-// Begin Base visitors.
-
-func (_ *ToSqlVisitor) VisitString(o interface{}, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlByte(QUESTION)
-	visitor.AppendArg(o)
-	return
-}
-
-func (_ *ToSqlVisitor) VisitInteger(o interface{}, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlByte(QUESTION)
-	visitor.AppendArg(o)
-	return
-}
-
-func (_ *ToSqlVisitor) VisitFloat(o interface{}, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlByte(QUESTION)
-	visitor.AppendArg(o)
-	return
-}
-
-func (_ *ToSqlVisitor) VisitBool(o interface{}, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlByte(QUESTION)
-	visitor.AppendArg(o)
-	return
-}
-
-// End Base visitors.
 
 // Begin Helpers.
 
