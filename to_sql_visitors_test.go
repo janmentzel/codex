@@ -61,6 +61,13 @@ func TestToSqlVisitorNotEqual(t *testing.T) {
 	assert.Equal(t, []interface{}{1, 2}, args)
 }
 
+func TestToSqlVisitorNotEqualNil(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(NotEqual(Column("a"), nil))
+	assert.Nil(t, err)
+	assert.Equal(t, `"a" IS NOT NULL`, sql)
+	assert.Empty(t, args)
+}
+
 func TestToSqlVisitorGreaterThan(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(GreaterThan(1, 2))
 	assert.Nil(t, err)

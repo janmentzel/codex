@@ -729,8 +729,6 @@ func (_ *ToSqlVisitor) VisitDeleteStatement(o *DeleteStatementNode, visitor Visi
 
 // Begin Function node visitors.
 
-// End Function node visitors.
-
 func (v *ToSqlVisitor) VisitCount(o *CountNode, visitor VisitorInterface) (err error) {
 	visitor.AppendSqlStr("COUNT")
 	return v.distinctExpressionsAlias((*FunctionNode)(o), visitor)
@@ -786,6 +784,8 @@ func (_ *ToSqlVisitor) distinctExpressionsAlias(o *FunctionNode, visitor Visitor
 	}
 	return
 }
+
+// End Function node visitors.
 
 // Begin Base visitors.
 
