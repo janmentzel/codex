@@ -157,3 +157,11 @@ func TestSelectManagerDeletion(t *testing.T) {
 	assert.Equal(t, `DELETE FROM "users" WHERE ("users"."owner_id"=?) AND (id > ?) LIMIT ?`, sql)
 	assert.Equal(t, []interface{}{77, 2, 1}, args)
 }
+
+func TestSelectManagerSelectChained(t *testing.T) {
+	s := Table("users").Select("a").Select("b").Select("c")
+	sql, args, err := s.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "users"."a","b","c" FROM "users"`, sql)
+	assert.Empty(t, args)
+}

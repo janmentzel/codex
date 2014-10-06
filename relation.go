@@ -23,75 +23,75 @@ func Table(name string) (relation *TableNode) {
 }
 
 // Col returns a Column scoped to this table
-func (r *TableNode) Col(name string) *AttributeNode {
-	return Attribute(Column(name), r)
+func (t *TableNode) Col(name string) *AttributeNode {
+	return Attribute(Column(name), t)
 }
 
 // Select returns a SelectManager
 // appends the columns
-func (r *TableNode) Select(cols ...interface{}) *SelectManager {
+func (t *TableNode) Select(cols ...interface{}) *SelectManager {
 	// convert string to AttributeNode
 	for i, col := range cols {
 		if str, ok := col.(string); ok {
-			cols[i] = r.Col(str)
+			cols[i] = t.Col(str)
 		}
 	}
 
-	return Selection(r).Scopes(r.scopes...).Select(cols...)
+	return Selection(t).Scopes(t.scopes...).Select(cols...)
 }
 
 // Where Returns a pointer to a SelectManager with the initial filter provided.
 // see SelectManager.Where()
-func (r *TableNode) Where(expr interface{}, args ...interface{}) *SelectManager {
-	return Selection(r).Scopes(r.scopes...).Where(expr, args...)
+func (t *TableNode) Where(expr interface{}, args ...interface{}) *SelectManager {
+	return Selection(t).Scopes(t.scopes...).Where(expr, args...)
 }
 
 // Returns a pointer to a SelectManager with an initial InnerJoinNode.
-func (r *TableNode) InnerJoin(expr interface{}) *SelectManager {
-	return Selection(r).Scopes(r.scopes...).InnerJoin(expr)
+func (t *TableNode) InnerJoin(expr interface{}) *SelectManager {
+	return Selection(t).Scopes(t.scopes...).InnerJoin(expr)
 }
 
 // Returns a pointer to a SelectManager with an initial OuterJoinNode.
-func (r *TableNode) OuterJoin(expr interface{}) *SelectManager {
-	return Selection(r).Scopes(r.scopes...).OuterJoin(expr)
+func (t *TableNode) OuterJoin(expr interface{}) *SelectManager {
+	return Selection(t).Scopes(t.scopes...).OuterJoin(expr)
 }
 
 // Returns a pointer to a SelectManager with an initial Ordering.
-func (r *TableNode) Order(expr interface{}) *SelectManager {
-	return Selection(r).Scopes(r.scopes...).Order(expr)
+func (t *TableNode) Order(expr interface{}) *SelectManager {
+	return Selection(t).Scopes(t.scopes...).Order(expr)
 }
 
 // Returns a pointer to a SelectManager with an initial Grouping.
-func (r *TableNode) Group(groupings ...interface{}) *SelectManager {
-	return Selection(r).Scopes(r.scopes...).Group(groupings...)
+func (t *TableNode) Group(groupings ...interface{}) *SelectManager {
+	return Selection(t).Scopes(t.scopes...).Group(groupings...)
 }
 
 // Returns a pointer to a SelectManager with an initial Having.
-func (r *TableNode) Having(expr interface{}) *SelectManager {
-	return Selection(r).Scopes(r.scopes...).Having(expr)
+func (t *TableNode) Having(expr interface{}) *SelectManager {
+	return Selection(t).Scopes(t.scopes...).Having(expr)
 }
 
 // Count Returns a pointer to a new SelectManager
-func (r *TableNode) Count(expr interface{}) *SelectManager {
-	return Selection(r).Scopes(r.scopes...).Count(expr)
+func (t *TableNode) Count(expr interface{}) *SelectManager {
+	return Selection(t).Scopes(t.scopes...).Count(expr)
 }
 
 // // Returns a pointer to a SelectManager with for the given TableNode.
-// func (r *TableNode) From(relation *TableNode) *SelectManager {
+// func (t *TableNode) From(relation *TableNode) *SelectManager {
 // 	return Selection(relation)
 // }
 
 // Returns a pointer to a InsertManager with initial the values provided.
-func (r *TableNode) Insert(expr ...interface{}) *InsertManager {
-	return Insertion(r).Insert(expr...)
+func (t *TableNode) Insert(expr ...interface{}) *InsertManager {
+	return Insertion(t).Insert(expr...)
 }
 
 // Returns a pointer to a UpdateManager with initial the columns provided.
-func (r *TableNode) Set(expr ...interface{}) *UpdateManager {
-	return Modification(r).Scopes(r.scopes...).Set(expr...)
+func (t *TableNode) Set(expr ...interface{}) *UpdateManager {
+	return Modification(t).Scopes(t.scopes...).Set(expr...)
 }
 
 // Returns a pointer to a DeleteManager with the initial filter provided.
-func (r *TableNode) Delete(expr interface{}) *DeleteManager {
-	return Deletion(r).Scopes(r.scopes...).Delete(expr)
+func (t *TableNode) Delete(expr interface{}) *DeleteManager {
+	return Deletion(t).Scopes(t.scopes...).Delete(expr)
 }
