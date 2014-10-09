@@ -78,6 +78,15 @@ func (self *AttributeNode) Desc() *DescendingNode {
 	return Descending(self)
 }
 
+// As creates an alias e.g. vor selected cols e.g. "products"."id" AS "product_id"
+// "product_id" would be the alias here
+func (self *AttributeNode) As(alias interface{}) *AsNode {
+	if s, ok := alias.(string); ok {
+		alias = Column(s)
+	}
+	return As(self, alias)
+}
+
 // AttributeNode factory method.
 func Attribute(name interface{}, relation *TableNode) (attribute *AttributeNode) {
 	attribute = new(AttributeNode)

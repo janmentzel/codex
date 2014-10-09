@@ -83,6 +83,8 @@ func (_ *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 		return visitor.VisitDescending(o.(*DescendingNode), visitor)
 
 	// Binary node visitors.
+	case *AsNode:
+		return visitor.VisitAs(o.(*AsNode), visitor)
 	case *AssignmentNode:
 		return visitor.VisitAssignment(o.(*AssignmentNode), visitor)
 	case *EqualNode:
@@ -145,6 +147,8 @@ func (_ *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 		return visitor.VisitMaximum(o.(*MaximumNode), visitor)
 	case *MinimumNode:
 		return visitor.VisitMinimum(o.(*MinimumNode), visitor)
+	case *CoalesceNode:
+		return visitor.VisitCoalesce(o.(*CoalesceNode), visitor)
 
 	// Base visitor.
 	default:
@@ -239,6 +243,16 @@ func (_ *ToSqlVisitor) VisitDescending(o *DescendingNode, visitor VisitorInterfa
 // End Unary node visitors.
 
 // Begin Binary node visitors.
+
+func (_ *ToSqlVisitor) VisitAs(o *AsNode, visitor VisitorInterface) (err error) {
+	err = visitor.Visit(o.Left, visitor)
+	if err != nil {
+		return
+	}
+	visitor.AppendSqlStr(AS)
+	err = visitor.Visit(o.Right, visitor)
+	return
+}
 
 func (_ *ToSqlVisitor) VisitAssignment(o *AssignmentNode, visitor VisitorInterface) (err error) {
 	err = visitor.Visit(o.Left, visitor)
@@ -743,6 +757,11 @@ func (v *ToSqlVisitor) VisitMaximum(o *MaximumNode, visitor VisitorInterface) (e
 
 func (v *ToSqlVisitor) VisitMinimum(o *MinimumNode, visitor VisitorInterface) (err error) {
 	visitor.AppendSqlStr("MIN")
+	return v.distinctExpressionsAlias((*FunctionNode)(o), visitor)
+}
+
+func (v *ToSqlVisitor) VisitCoalesce(o *CoalesceNode, visitor VisitorInterface) (err error) {
+	visitor.AppendSqlStr("COALESCE")
 	return v.distinctExpressionsAlias((*FunctionNode)(o), visitor)
 }
 

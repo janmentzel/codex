@@ -56,6 +56,28 @@ func TestTableSelectScoped(t *testing.T) {
 	assert.Equal(t, []interface{}{77}, args)
 }
 
+func TestTableSelectStar(t *testing.T) {
+	rel := Table("foo")
+
+	m := rel.Select(Star())
+
+	sql, args, err := m.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT * FROM "foo"`, sql)
+	assert.Empty(t, args)
+}
+
+func TestTableSelectAllCols(t *testing.T) {
+	rel := Table("foo")
+
+	m := rel.Select(rel.AllCols())
+
+	sql, args, err := m.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "foo".* FROM "foo"`, sql)
+	assert.Empty(t, args)
+}
+
 func TestTableWhereWithNode(t *testing.T) {
 	rel := Table("foo")
 	m := rel.Where(rel.Col("id").Eq(1))

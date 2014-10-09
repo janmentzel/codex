@@ -138,6 +138,20 @@ func TestToSqlVisitorUnaliasedAttribute(t *testing.T) {
 	assert.Empty(t, args)
 }
 
+func TestToSqlVisitorAliasedAttributeString(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Attribute(Column("column"), Table("table")).As("table_column"))
+	assert.Nil(t, err)
+	assert.Equal(t, `"table"."column" AS "table_column"`, sql)
+	assert.Empty(t, args)
+}
+
+func TestToSqlVisitorAliasedAttributeCol(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Attribute(Column("column"), Table("table")).As(Column("table_column")))
+	assert.Nil(t, err)
+	assert.Equal(t, `"table"."column" AS "table_column"`, sql)
+	assert.Empty(t, args)
+}
+
 func TestToSqlVisitorJoinSource(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(JoinSource(Table("table")))
 	assert.Nil(t, err)
@@ -259,6 +273,13 @@ func TestToSqlVisitorMaximumColAlias(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, `MAX("amount") AS "max_amount"`, sql)
 	assert.Empty(t, args)
+}
+
+func TestToSqlVisitorCoalesceCol(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Coalesce(Column("amount"), 0))
+	assert.Nil(t, err)
+	assert.Equal(t, `COALESCE("amount",?)`, sql)
+	assert.Equal(t, []interface{}{0}, args)
 }
 
 func TestToSqlVisitorExtensiveFunctionInt(t *testing.T) {

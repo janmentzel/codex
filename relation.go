@@ -27,6 +27,11 @@ func (t *TableNode) Col(name string) *AttributeNode {
 	return Attribute(Column(name), t)
 }
 
+// AllCols returns a * scoped to this table e.g. renders to '"tablename".*' sql
+func (t *TableNode) AllCols() *AttributeNode {
+	return Attribute(Star(), t)
+}
+
 // Select returns a SelectManager
 // appends the columns
 func (t *TableNode) Select(cols ...interface{}) *SelectManager {

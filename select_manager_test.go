@@ -17,8 +17,8 @@ func TestSelectManager(t *testing.T) {
 	_ = mgr.Where(1)
 	_ = mgr.Offset(1)
 	_ = mgr.Limit(1)
-	_ = mgr.InnerJoin(1)
-	_ = mgr.OuterJoin(1)
+	_ = mgr.InnerJoin(Table("foo")) //, Literal("ON foo.id = bar.foo_id"))
+	_ = mgr.OuterJoin(Table("foo"))
 	_ = mgr.On(1)
 	_ = mgr.Order(1)
 	_ = mgr.Group(1)
@@ -163,5 +163,16 @@ func TestSelectManagerSelectChained(t *testing.T) {
 	sql, args, err := s.ToSql()
 	assert.Nil(t, err)
 	assert.Equal(t, `SELECT "users"."a","b","c" FROM "users"`, sql)
+	assert.Empty(t, args)
+}
+
+func TestSelectManagerInnerJoin(t *testing.T) {
+	us := Table("users")
+	mgr := Selection(us)
+	co := Table("companies")
+
+	sql, args, err := mgr.InnerJoin(co).On(co.Col("id").Eq(us.Col("company_id"))).ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "users".* FROM "users" INNER JOIN "companies" ON "companies"."id"="users"."company_id"`, sql)
 	assert.Empty(t, args)
 }

@@ -26,6 +26,7 @@ type VisitorInterface interface {
 	VisitDescending(*DescendingNode, VisitorInterface) error
 
 	// Binary node visitors.
+	VisitAs(*AsNode, VisitorInterface) error
 	VisitAssignment(*AssignmentNode, VisitorInterface) error
 	VisitEqual(*EqualNode, VisitorInterface) error
 	VisitNotEqual(*NotEqualNode, VisitorInterface) error
@@ -60,6 +61,7 @@ type VisitorInterface interface {
 	VisitSum(*SumNode, VisitorInterface) error
 	VisitMaximum(*MaximumNode, VisitorInterface) error
 	VisitMinimum(*MinimumNode, VisitorInterface) error
+	VisitCoalesce(*CoalesceNode, VisitorInterface) error
 
 	// Helpers.
 	QuoteTableName(interface{}, VisitorInterface) error

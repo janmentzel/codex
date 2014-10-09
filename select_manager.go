@@ -1,5 +1,9 @@
 package codex
 
+import (
+	"fmt"
+)
+
 // SelectManager manages a tree that compiles to a SQL select statement.
 type SelectManager struct {
 	Tree    *SelectStatementNode // The AST for the SQL SELECT statement.
@@ -82,6 +86,8 @@ func (self *SelectManager) InnerJoin(table interface{}) *SelectManager {
 		self.Tree.Source.Right = append(self.Tree.Source.Right, InnerJoin(table.(Accessor).Table(), nil))
 	case *TableNode:
 		self.Tree.Source.Right = append(self.Tree.Source.Right, InnerJoin(table.(*TableNode), nil))
+	default:
+		panic(fmt.Sprintf("code.SelectManager.InnerJoin() type not expected! %#v", table))
 	}
 
 	return self
@@ -94,6 +100,8 @@ func (self *SelectManager) OuterJoin(table interface{}) *SelectManager {
 		self.Tree.Source.Right = append(self.Tree.Source.Right, OuterJoin(table.(Accessor).Table(), nil))
 	case *TableNode:
 		self.Tree.Source.Right = append(self.Tree.Source.Right, OuterJoin(table.(*TableNode), nil))
+	default:
+		panic(fmt.Sprintf("code.SelectManager.OuterJoin() type not expected! %#v", table))
 	}
 
 	return self
