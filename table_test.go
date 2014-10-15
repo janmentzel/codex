@@ -67,6 +67,17 @@ func TestTableSelectStar(t *testing.T) {
 	assert.Empty(t, args)
 }
 
+func TestTableSelectColStar(t *testing.T) {
+	rel := Table("foo")
+
+	m := rel.Select(rel.Col(Star()))
+
+	sql, args, err := m.ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "foo".* FROM "foo"`, sql)
+	assert.Empty(t, args)
+}
+
 func TestTableSelectAllCols(t *testing.T) {
 	rel := Table("foo")
 
