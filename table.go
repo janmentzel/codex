@@ -27,8 +27,8 @@ func (t *TableNode) Col(name string) *AttributeNode {
 	return Attribute(Column(name), t)
 }
 
-// AllCols returns a * scoped to this table e.g. renders to '"tablename".*' sql
-func (t *TableNode) AllCols() *AttributeNode {
+// Star returns a * scoped to this table e.g. renders to '"tablename".*' sql
+func (t *TableNode) Star() *AttributeNode {
 	return Attribute(Star(), t)
 }
 

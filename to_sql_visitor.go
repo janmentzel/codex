@@ -805,6 +805,12 @@ func (_ *ToSqlVisitor) QuoteTableName(o interface{}, visitor VisitorInterface) (
 	if !ok {
 		return fmt.Errorf("ToSqlVisitor.QuoteTableName() expected string but got %#v", o)
 	}
+
+	if !VALID_TABLE_NAME_PATTERN.MatchString(s) {
+		visitor.AppendSqlStr("-- ERROR --")
+		return fmt.Errorf("invalid table name: '%s'", s)
+	}
+
 	visitor.AppendSqlByte(QUOTE)
 	visitor.AppendSqlStr(s)
 	visitor.AppendSqlByte(QUOTE)
@@ -816,6 +822,12 @@ func (_ *ToSqlVisitor) QuoteColumnName(o interface{}, visitor VisitorInterface) 
 	if !ok {
 		return fmt.Errorf("ToSqlVisitor.QuoteColumnName() expected string but got %#v", o)
 	}
+
+	if !VALID_COL_NAME_PATTERN.MatchString(s) {
+		visitor.AppendSqlStr("-- ERROR --")
+		return fmt.Errorf("invalid column name: '%s'", s)
+	}
+
 	visitor.AppendSqlByte(QUOTE)
 	visitor.AppendSqlStr(s)
 	visitor.AppendSqlByte(QUOTE)

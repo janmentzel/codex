@@ -1,12 +1,28 @@
 // Package codex provides a Relational Algebra for PostgreSQL and MySQL. Based on Arel (Ruby on Rails).
 package codex
 
+import (
+	"regexp"
+)
+
 type adapter uint8
 
 const (
 	MYSQL adapter = iota + 1
 	POSTGRES
 )
+
+var VALID_COL_NAME_PATTERN *regexp.Regexp
+var VALID_TABLE_NAME_PATTERN *regexp.Regexp
+
+func init() {
+	var err error
+	VALID_COL_NAME_PATTERN, err = regexp.Compile(`(?i)^[a-z][a-z0-9_\$]*$`)
+	if err != nil {
+		panic(err)
+	}
+	VALID_TABLE_NAME_PATTERN = VALID_COL_NAME_PATTERN
+}
 
 // ToggleDebugMode toggles debugger variable for managers package.
 func ToggleDebugMode() {

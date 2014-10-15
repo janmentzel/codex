@@ -580,12 +580,60 @@ func TestToSqlVisitorVisitBool(t *testing.T) {
 
 func TestToSqlVisitorQuoteColumnName(t *testing.T) {
 	v := NewToSqlVisitor()
-	v.QuoteColumnName("foo_Bar1", v)
+	err := v.QuoteColumnName("foo_Bar1", v)
+	assert.Nil(t, err)
 	assert.Equal(t, `"foo_Bar1"`, v.String())
+}
+
+func TestToSqlVisitorQuoteColumnNameDolar(t *testing.T) {
+	v := NewToSqlVisitor()
+	err := v.QuoteColumnName("foo$", v)
+	assert.Nil(t, err)
+	assert.Equal(t, `"foo$"`, v.String())
+}
+
+func TestToSqlVisitorQuoteColumnNameWithQuoteReturnsError(t *testing.T) {
+	v := NewToSqlVisitor()
+	err := v.QuoteColumnName(`id" baaaam`, v)
+	assert.NotNil(t, err)
+	assert.Equal(t, "invalid column name: 'id\" baaaam'", err.Error())
+	assert.Equal(t, `-- ERROR --`, v.String())
+}
+
+func TestToSqlVisitorQuoteColumnNameLeadingNumReturnsError(t *testing.T) {
+	v := NewToSqlVisitor()
+	err := v.QuoteColumnName(`1foo`, v)
+	assert.NotNil(t, err)
+	assert.Equal(t, "invalid column name: '1foo'", err.Error())
+	assert.Equal(t, `-- ERROR --`, v.String())
 }
 
 func TestToSqlVisitorQuoteTableName(t *testing.T) {
 	v := NewToSqlVisitor()
-	v.QuoteTableName("foo_Bar2", v)
+	err := v.QuoteTableName("foo_Bar2", v)
+	assert.Nil(t, err)
 	assert.Equal(t, `"foo_Bar2"`, v.String())
+}
+
+func TestToSqlVisitorQuoteTableNameDolar(t *testing.T) {
+	v := NewToSqlVisitor()
+	err := v.QuoteTableName("foo$", v)
+	assert.Nil(t, err)
+	assert.Equal(t, `"foo$"`, v.String())
+}
+
+func TestToSqlVisitorQuoteTableNameWithQuoteReturnsError(t *testing.T) {
+	v := NewToSqlVisitor()
+	err := v.QuoteTableName(`foo" baaam`, v)
+	assert.NotNil(t, err)
+	assert.Equal(t, "invalid table name: 'foo\" baaam'", err.Error())
+	assert.Equal(t, `-- ERROR --`, v.String())
+}
+
+func TestToSqlVisitorQuoteTableNameWithLeadingNumReturnsError(t *testing.T) {
+	v := NewToSqlVisitor()
+	err := v.QuoteTableName(`124foo`, v)
+	assert.NotNil(t, err)
+	assert.Equal(t, "invalid table name: '124foo'", err.Error())
+	assert.Equal(t, `-- ERROR --`, v.String())
 }
