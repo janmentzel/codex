@@ -22,6 +22,7 @@ func TestSelectManager(t *testing.T) {
 	_ = mgr.On(1)
 	_ = mgr.Order(1)
 	_ = mgr.Group(1)
+	_ = mgr.Count(1)
 	_ = mgr.Having(1)
 	_ = mgr.Union(Selection(relation))
 	_ = mgr.Intersect(Selection(relation))
@@ -107,6 +108,15 @@ func TestSelectManagerScopeWithFunc(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, `SELECT "users".* FROM "users" WHERE ("users"."owner_id"=?) AND ("users"."active") AND (id = ?)`, sql)
 	assert.Equal(t, []interface{}{77, 1}, args)
+}
+
+func TestSelectManagerCount(t *testing.T) {
+	users := Table("users")
+	mgr := Selection(users)
+	sql, args, err := mgr.Where("id > ?", 0).Limit(1).Offset(1).Count(Star()).ToSql()
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT COUNT(*) FROM "users" WHERE (id > ?)`, sql)
+	assert.Equal(t, []interface{}{0}, args)
 }
 
 func TestSelectManagerModification(t *testing.T) {

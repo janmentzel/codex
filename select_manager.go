@@ -180,8 +180,6 @@ func (self *SelectManager) Count(expr interface{}) *SelectManager {
 		Having:     self.Tree.Having,
 		Orders:     make([]interface{}, 0),
 		Combinator: self.Tree.Combinator,
-		Limit:      self.Tree.Limit,
-		Offset:     self.Tree.Offset,
 	}
 
 	m := &SelectManager{
