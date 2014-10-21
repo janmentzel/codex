@@ -16,125 +16,154 @@ With Google's [Go](http://www.golang.org) installed on your machine:
 To show a little sample of what using Codex looks like, lets assume you have a table in your database (we'll call it `users`) and you want to select all the records it contains.  The SQL looks a little like this:
 
 ```sql
-SELECT "users".* FROM "users"
+SELECT * FROM "users"
 ```
 
 Now using Codex:
 
 ```go
 import (
-  /* Maybe some other imports. */
   "github.com/janmentzel/codex"
 )
 
-
 users := codex.Table("users")
-sql, err := users.ToSql()
+sql, _, err := users.ToSql()
+// sql = SELECT * FROM "users"
 ```
 
 Now that wasn't too bad, was it?
 
-## Selections
+## SELECT
 
-#### Projections
+#### Explicit Columns
+
+```sql
+SELECT id, email, first_name, last_name FROM users
+```
 
 ```go
 // ...
 
 users := codex.Table("users")
-sql, err := users.Select("id", "email", "first_name", "last_name").ToSql()
+sql, _, err := users.Select("id", "email", "first_name", "last_name").ToSql()
+
+// sql = SELECT id, email, first_name, last_name FROM users
 ```
 
-#### Filtering
+#### WHERE Clause
+
+```sql
+SELECT * FROM users WHERE users.id = 123
+```
+
+Inlining arguments in SQL queries is SQL-injection prone and not working with prepared queries.
+Pass arguments seperately into the DB driver.
+
+```sql
+SELECT * FROM users WHERE users.id = ?
+```
+arguments is an array (`[]interface{}`) with one `int` value here `[123]`
 
 ```go
-// ...
-
 users := codex.Table("users")
-sql, err := users.Where(users("id").Eq(1).Or(users("email").Eq("test@example.com"))).ToSql()
+sql, args, err := users.Where(users("id").Eq(123)).ToSql()
+
+// sql = `SELECT * FROM users WHERE users.id = ?`
+// args = [123]
 ```
 
-#### Joins
+With an `OR`
+
+```sql
+SELECT * FROM users WHERE users.id = 123 OR users.email = "test@example.com"
+```
+
+arguments separated `[123, "test@example.com"]`
+```sql
+SELECT * FROM users WHERE users.id = ? OR users.email = ?
+```
+
 
 ```go
-// ...
+users := codex.Table("users")
+sql, args, err := users.Where(users("id").Eq(1).Or(users("email").Eq("test@example.com"))).ToSql()
 
+// sql = SELECT * FROM users WHERE users.id = ? OR users.email = ?
+// args = [123, "test@example.com"]
+```
+
+
+
+#### JOIN
+
+```go
 users := codex.Table("users")
 orders := codex.Table("orders")
-sql, err := users.InnerJoin(orders).On(orders("user_id").Eq(users("id"))).ToSql()
+sql, args, err := users.InnerJoin(orders).On(orders("user_id").Eq(users("id"))).ToSql()
 
-// SELECT "users".* FROM "users" INNER JOIN "orders" ON "orders"."user_id" = "users"."id"
+// sql = SELECT "users".*
+//       FROM "users"
+//       INNER JOIN "orders" ON "orders"."user_id" = "users"."id"
+// args = []
 ```
 
-## Insertions
+#### Column Alias
 
 ```go
-// ...
+companies := codex.Table("companies")
+users := codex.Table("users")
+q := users.Select(users.Star(), companies.Col("name").As("company_name")).
+  InnerJoin(companies).On(companies("id").Eq(users("company_id")))
 
-sql, err := users.Insert("Jon", "Doe", "jon@example.com").
+sql, args, err := q.ToSql()
+
+// sql = SELECT "users".*, "companies"."name" AS "company_name"
+//       FROM "users"
+//       INNER JOIN "companies" ON "companies"."id" = "users"."company_id"
+// args = []
+```
+
+
+## INSERT
+
+```go
+sql, args, err := users.Insert("Jon", "Doe", "jon@example.com").
     Into("first_name", "last_name", "email").ToSql()
 
-// INSERT INTO "users" ("first_name", "last_name", "email") VALUES ('Jon', 'Doe', 'jon@example.com')
+// sql = `INSERT INTO "users" ("first_name", "last_name", "email") VALUES (?, ?, ?)`
+// args = ["Jon", "Doe", "jon@example.com"]
 ```
 
-## Modifications
+## UPDATE
 
 ```go
-// ...
-
-sql, err := users.Set("first_name", "last_name", "email").
+sql, args, err := users.Set("first_name", "last_name", "email").
     To("Jon", "Doe", "jon@example.com").
     Where(users("id").Eq(1)).ToSql()
 
-// UPDATE "users" SET "first_name" = 'Jon', "last_name" = 'Doe', "email" = 'jon@example.com'
-// WHERE "users"."id" = 1
+// sql = UPDATE "users" SET "first_name" = 'Jon', "last_name" = 'Doe', "email" = 'jon@example.com'
+//       WHERE "users"."id" = 1
+// args = ["Jon", "Doe", "jon@example.com", 1]
 ```
 
-## Deletions
+## DELETE
 
 ```go
-// ...
+sql, args, err := users.Delete(users("id").Eq(123)).ToSql()
 
-sql, err := users.Delete(users("id").Eq(1)).ToSql()
-
-// DELETE FROM "users" WHERE "users"."id" = 1
+// sql = DELETE FROM "users" WHERE "users"."id" = ?
+// args = [123]
 ```
 
-## Creations
+## CREATE TABLE / ALTER TABLE
 
-The codex package currently provides a few common SQL data and constraint types as constants to use with creating and altering tables.  These constants can be found within codex's `sql` package.
+DB schema CREATE and ALTER statements are not supported by codex.
 
-```go
-// ...
+codex focus is read/writes queries.
 
-users := codex.CreateTable("users").
-  AddColumn("first_name", codex.String).
-  AddColumn("last_name", codex.String).
-  AddColumn("email", codex.String).
-  AddColumn("id", codex.Integer).
-  AddConstraint("first_name", codex.NotNull).
-  AddConstraint("id", codex.PrimaryKey).
-  AddConstraint("email", codex.Unique, "users_uniq_email") // Optional last argument supplies index name.
-
-sql, err := users.ToSql()
-
-// CREATE TABLE "users" (
-//  "first_name" varchar(255),
-//  "last_name" varchar(255),
-//  "email" varchar(255),
-//  "id" integer
-// );
-// ALTER TABLE "users" ALTER "first_name" SET NOT NULL;
-// ALTER TABLE "users" ADD PRIMARY KEY("id");
-// ALTER TABLE "users" ADD CONSTRAINT "users_email_uniq" UNIQUE("email");
-```
-
-__Note__: The `AddConstraint` receiver method when passed a constraint of `codex.ForeignKey`, treats its options argument as a SQL `REFERENCE` followed by the optional name of the index.
+For database migrations you might like to use [goose](https://bitbucket.org/liamstask/goose)
 
 
-## Alterations
-
-Alterations work the same as Creations, only the the initializer function `AlterTable` is used in place of `CreateTable`.
 
 ## Documentation
 
