@@ -101,6 +101,10 @@ func (self *UpdateManager) ToSql() (string, []interface{}, error) {
 	return VisitorFor(self.Adapter).Accept(self.Tree)
 }
 
+func (self *UpdateManager) Table() *TableNode {
+	return self.Tree.Table
+}
+
 // UpdateManager factory method.
 func Modification(relation *TableNode) (m *UpdateManager) {
 	m = new(UpdateManager)

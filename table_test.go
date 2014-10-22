@@ -341,3 +341,27 @@ func TestTableDeleteScoped(t *testing.T) {
 	assert.Equal(t, `DELETE FROM "foo" WHERE ("foo"."owner_id"=?) AND (?)`, sql)
 	assert.Equal(t, []interface{}{77, 1}, args)
 }
+
+func TestTableInsertion(t *testing.T) {
+	tab := Table("foo")
+	assert.IsType(t, &InsertManager{}, tab.Insertion())
+	assert.Equal(t, tab, tab.Insertion().Table())
+}
+
+func TestTableModification(t *testing.T) {
+	tab := Table("foo")
+	assert.IsType(t, &UpdateManager{}, tab.Modification())
+	assert.Equal(t, tab, tab.Modification().Table())
+}
+
+func TestTableSelection(t *testing.T) {
+	tab := Table("foo")
+	assert.IsType(t, &SelectManager{}, tab.Selection())
+	assert.Equal(t, tab, tab.Selection().Table())
+}
+
+func TestTableDeletion(t *testing.T) {
+	tab := Table("foo")
+	assert.IsType(t, &DeleteManager{}, tab.Deletion())
+	assert.Equal(t, tab, tab.Deletion().Table())
+}

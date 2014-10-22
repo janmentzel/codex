@@ -59,6 +59,10 @@ func (self *InsertManager) ToSql() (string, []interface{}, error) {
 	return VisitorFor(self.Adapter).Accept(self.Tree)
 }
 
+func (self *InsertManager) Table() *TableNode {
+	return self.Tree.Table
+}
+
 func Insertion(relation *TableNode) (m *InsertManager) {
 	m = new(InsertManager)
 	m.Tree = InsertStatement(relation)

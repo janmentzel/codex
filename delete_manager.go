@@ -84,6 +84,10 @@ func (self *DeleteManager) ToSql() (string, []interface{}, error) {
 	return VisitorFor(self.Adapter).Accept(self.Tree)
 }
 
+func (self *DeleteManager) Table() *TableNode {
+	return self.Tree.Table
+}
+
 // DeleteManager factory methods.
 func Deletion(relation *TableNode) (m *DeleteManager) {
 	m = new(DeleteManager)

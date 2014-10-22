@@ -244,6 +244,10 @@ func (self *SelectManager) ToSql() (string, []interface{}, error) {
 	return VisitorFor(self.Adapter).Accept(self.Tree)
 }
 
+func (self *SelectManager) Table() *TableNode {
+	return self.Tree.Table
+}
+
 // SelectManager factory method.
 func Selection(relation *TableNode) (m *SelectManager) {
 	m = new(SelectManager)

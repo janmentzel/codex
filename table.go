@@ -100,3 +100,23 @@ func (t *TableNode) Set(expr ...interface{}) *UpdateManager {
 func (t *TableNode) Delete(expr interface{}) *DeleteManager {
 	return Deletion(t).Scopes(t.scopes...).Delete(expr)
 }
+
+// Returns a pointer to a InsertManager initialized with Table
+func (t *TableNode) Insertion() *InsertManager {
+	return Insertion(t)
+}
+
+// Returns a pointer to a UpdateManager initialized with Table
+func (t *TableNode) Modification() *UpdateManager {
+	return Modification(t)
+}
+
+// Returns a pointer to a SelectManager initialized with Table
+func (t *TableNode) Selection() *SelectManager {
+	return Selection(t)
+}
+
+// Returns a pointer to a DeleteManager initialized with Table
+func (t *TableNode) Deletion() *DeleteManager {
+	return Deletion(t)
+}
