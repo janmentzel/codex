@@ -96,6 +96,42 @@ func TestToSqlVisitorLessThanOrEqual(t *testing.T) {
 	assert.Equal(t, []interface{}{1, 2}, args)
 }
 
+func TestToSqlVisitorInEmpty(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(In(1, []interface{}{}))
+	assert.Nil(t, err)
+	assert.Equal(t, "? IN()", sql)
+	assert.Equal(t, []interface{}{1}, args)
+}
+
+func TestToSqlVisitorInOne(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(In(1, []interface{}{2}))
+	assert.Nil(t, err)
+	assert.Equal(t, "? IN(?)", sql)
+	assert.Equal(t, []interface{}{1, 2}, args)
+}
+
+func TestToSqlVisitorInTwo(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(In(1, []interface{}{2, 3}))
+	assert.Nil(t, err)
+	assert.Equal(t, "? IN(?,?)", sql)
+	assert.Equal(t, []interface{}{1, 2, 3}, args)
+}
+
+func TestToSqlVisitorInThree(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(In(1, []interface{}{2, 3, 4}))
+	assert.Nil(t, err)
+	assert.Equal(t, "? IN(?,?,?)", sql)
+	assert.Equal(t, []interface{}{1, 2, 3, 4}, args)
+}
+
+func TestToSqlVisitorInError(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(In(1, (interface{})("wrong")))
+	assert.NotNil(t, err)
+	assert.Equal(t, `IN() requires parameters to be []interface{} but is: "wrong"`, err.Error())
+	assert.Equal(t, "?-- ERROR --", sql)
+	assert.Equal(t, []interface{}{1}, args)
+}
+
 func TestToSqlVisitorLike(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(Like(1, 2))
 	assert.Nil(t, err)

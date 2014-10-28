@@ -99,6 +99,8 @@ func (_ *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 		return visitor.VisitLessThan(o.(*LessThanNode), visitor)
 	case *LessThanOrEqualNode:
 		return visitor.VisitLessThanOrEqual(o.(*LessThanOrEqualNode), visitor)
+	case *InNode:
+		return visitor.VisitIn(o.(*InNode), visitor)
 	case *LikeNode:
 		return visitor.VisitLike(o.(*LikeNode), visitor)
 	case *UnlikeNode:
@@ -331,6 +333,28 @@ func (_ *ToSqlVisitor) VisitLessThanOrEqual(o *LessThanOrEqualNode, visitor Visi
 	}
 	visitor.AppendSqlStr(LTEQUAL)
 	err = visitor.Visit(o.Right, visitor)
+	return
+}
+
+func (_ *ToSqlVisitor) VisitIn(o *InNode, visitor VisitorInterface) (err error) {
+	err = visitor.Visit(o.Left, visitor)
+	if err != nil {
+		return
+	}
+	vals, ok := o.Right.([]interface{})
+	if !ok {
+		visitor.AppendSqlStr("-- ERROR --")
+		return fmt.Errorf("IN() requires parameters to be []interface{} but is: %#v", o.Right)
+	}
+	visitor.AppendSqlStr(" IN(")
+	for i, val := range vals {
+		if i > 0 {
+			visitor.AppendSqlByte(COMMA)
+		}
+		visitor.AppendSqlByte(QUESTION)
+		visitor.AppendArg(val)
+	}
+	visitor.AppendSqlByte(')')
 	return
 }
 

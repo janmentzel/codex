@@ -20,6 +20,8 @@ func TestAttribute(t *testing.T) {
 	_ = attr.Gte(1)
 	_ = attr.Lt(1)
 	_ = attr.Lte(1)
+	_ = attr.In(1)
+	_ = attr.In(1, 2, 3, 4)
 	_ = attr.Like(1)
 	_ = attr.Unlike(1)
 	_ = attr.Asc()

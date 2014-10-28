@@ -42,6 +42,12 @@ func (self *AttributeNode) Lte(other interface{}) *LessThanOrEqualNode {
 	return LessThanOrEqual(self, other)
 }
 
+// Returns and In node containing a reference to the
+// attribute and other
+func (self *AttributeNode) In(other ...interface{}) *InNode {
+	return In(self, other)
+}
+
 // Returns and Like node containing a reference to the
 // attribute and other
 func (self *AttributeNode) Like(other interface{}) *LikeNode {

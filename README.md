@@ -93,6 +93,14 @@ sql, args, err := users.Where(users("id").Eq(1).Or(users("email").Eq("test@examp
 // args = [123, "test@example.com"]
 ```
 
+`IN()`
+```go
+users := codex.Table("users")
+sql, args, err := users.Where(users("id").In(1,2,3,4,5)).ToSql()
+
+// sql = SELECT * FROM users WHERE users.id IN(?,?,?,?,?)
+// args = [1,2,3,4,5]
+```
 
 
 #### JOIN

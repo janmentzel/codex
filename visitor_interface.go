@@ -34,6 +34,7 @@ type VisitorInterface interface {
 	VisitGreaterThanOrEqual(*GreaterThanOrEqualNode, VisitorInterface) error
 	VisitLessThan(*LessThanNode, VisitorInterface) error
 	VisitLessThanOrEqual(*LessThanOrEqualNode, VisitorInterface) error
+	VisitIn(*InNode, VisitorInterface) error
 	VisitLike(*LikeNode, VisitorInterface) error
 	VisitUnlike(*UnlikeNode, VisitorInterface) error
 	VisitOr(*OrNode, VisitorInterface) error
