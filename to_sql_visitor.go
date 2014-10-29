@@ -37,8 +37,14 @@ type ToSqlVisitor struct {
 var _ VisitorInterface = (*ToSqlVisitor)(nil)
 
 // creates ToSqlVisitor with standard Collector
-func NewToSqlVisitor() *ToSqlVisitor {
-	return &ToSqlVisitor{NewCollector()}
+func NewToSqlVisitor(collectors ...CollectorInterface) *ToSqlVisitor {
+	var collector CollectorInterface
+	if len(collectors) == 0 {
+		collector = NewCollector()
+	} else {
+		collector = collectors[0]
+	}
+	return &ToSqlVisitor{collector}
 }
 
 func (v *ToSqlVisitor) Accept(o interface{}) (string, []interface{}, error) {
@@ -47,7 +53,7 @@ func (v *ToSqlVisitor) Accept(o interface{}) (string, []interface{}, error) {
 	return v.String(), v.Args(), err
 }
 
-func (_ *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
+func (v *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 
 	if DEBUG {
 		fmt.Printf("DEBUG: Visiting %T\n", o)
@@ -351,8 +357,10 @@ func (_ *ToSqlVisitor) VisitIn(o *InNode, visitor VisitorInterface) (err error) 
 		if i > 0 {
 			visitor.AppendSqlByte(COMMA)
 		}
-		visitor.AppendSqlByte(QUESTION)
-		visitor.AppendArg(val)
+		err = visitor.Visit(val, visitor)
+		if err != nil {
+			return
+		}
 	}
 	visitor.AppendSqlByte(')')
 	return

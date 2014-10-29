@@ -124,6 +124,29 @@ func TestToSqlVisitorInThree(t *testing.T) {
 	assert.Equal(t, []interface{}{1, 2, 3, 4}, args)
 }
 
+func TestToSqlVisitorInColums(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(In(Column("x"), []interface{}{Column("a"), Column("b")}))
+	assert.Nil(t, err)
+	assert.Equal(t, `"x" IN("a","b")`, sql)
+	assert.Empty(t, args)
+}
+
+func TestToSqlVisitorInLeftError(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(In(Column(".raises error"), []interface{}{Column("a")}))
+	assert.NotNil(t, err)
+	assert.Equal(t, `invalid column name: '.raises error'`, err.Error())
+	assert.Equal(t, `-- ERROR --`, sql)
+	assert.Empty(t, args)
+}
+
+func TestToSqlVisitorInRightError(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(In(Column("x"), []interface{}{Column(".raises error")}))
+	assert.NotNil(t, err)
+	assert.Equal(t, `invalid column name: '.raises error'`, err.Error())
+	assert.Equal(t, `"x" IN(-- ERROR --`, sql)
+	assert.Empty(t, args)
+}
+
 func TestToSqlVisitorInError(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(In(1, (interface{})("wrong")))
 	assert.NotNil(t, err)
@@ -672,4 +695,19 @@ func TestToSqlVisitorQuoteTableNameWithLeadingNumReturnsError(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, "invalid table name: '124foo'", err.Error())
 	assert.Equal(t, `-- ERROR --`, v.String())
+}
+
+//         map: 5800 ns/op
+// type switch: 4700 ns/op   ... seems to be quite optimized
+func BenchmarkVisit(b *testing.B) {
+	foo := Table("foo")
+	bar := Table("bar")
+	stm := SelectStatement(foo)
+	stm.Cols = append(stm.Cols, Column("id"), Column("name"))
+	stm.Wheres = append(stm.Wheres, Equal(foo.Col("id"), 1), NotEqual(foo.Col("name"), nil))
+	stm.Source.Right = append(stm.Source.Right, InnerJoin(bar, Literal("ON bar.id=foo.bar_id")))
+
+	for n := 0; n < b.N; n++ {
+		NewToSqlVisitor().Accept(stm)
+	}
 }
