@@ -56,13 +56,8 @@ type VisitorInterface interface {
 	VisitUpdateStatement(*UpdateStatementNode, VisitorInterface) error
 	VisitDeleteStatement(*DeleteStatementNode, VisitorInterface) error
 
-	// Function node visitors.
-	VisitCount(*CountNode, VisitorInterface) error
-	VisitAverage(*AverageNode, VisitorInterface) error
-	VisitSum(*SumNode, VisitorInterface) error
-	VisitMaximum(*MaximumNode, VisitorInterface) error
-	VisitMinimum(*MinimumNode, VisitorInterface) error
-	VisitCoalesce(*CoalesceNode, VisitorInterface) error
+	// Function node visitor.
+	VisitFunction(*FunctionNode, VisitorInterface) error
 
 	// Helpers.
 	QuoteTableName(interface{}, VisitorInterface) error

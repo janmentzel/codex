@@ -283,50 +283,50 @@ func TestToSqlVisitorSumCol(t *testing.T) {
 	assert.Empty(t, args)
 }
 
-func TestToSqlVisitorAverageInt(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(Average(1))
+func TestToSqlVisitorAvgInt(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Avg(1))
 	assert.Nil(t, err)
 	assert.Equal(t, `AVG(?)`, sql)
 	assert.Equal(t, []interface{}{1}, args)
 }
 
-func TestToSqlVisitorAverageCol(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(Average(Column("amount")))
+func TestToSqlVisitorAvgCol(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Avg(Column("amount")))
 	assert.Nil(t, err)
 	assert.Equal(t, `AVG("amount")`, sql)
 	assert.Empty(t, args)
 }
 
-func TestToSqlVisitorMinimumInt(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(Minimum(1))
+func TestToSqlVisitorMinInt(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Min(1))
 	assert.Nil(t, err)
 	assert.Equal(t, `MIN(?)`, sql)
 	assert.Equal(t, []interface{}{1}, args)
 }
 
-func TestToSqlVisitorMinimumCol(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(Minimum(Column("amount")))
+func TestToSqlVisitorMinCol(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Min(Column("amount")))
 	assert.Nil(t, err)
 	assert.Equal(t, `MIN("amount")`, sql)
 	assert.Empty(t, args)
 }
 
-func TestToSqlVisitorMaximumInt(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(Maximum(1))
+func TestToSqlVisitorMaxInt(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Max(1))
 	assert.Nil(t, err)
 	assert.Equal(t, `MAX(?)`, sql)
 	assert.Equal(t, []interface{}{1}, args)
 }
 
-func TestToSqlVisitorMaximumCol(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(Maximum(Column("amount")))
+func TestToSqlVisitorMaxCol(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Max(Column("amount")))
 	assert.Nil(t, err)
 	assert.Equal(t, `MAX("amount")`, sql)
 	assert.Empty(t, args)
 }
 
-func TestToSqlVisitorMaximumColAlias(t *testing.T) {
-	max := Maximum(Column("amount"))
+func TestToSqlVisitorMaxColAlias(t *testing.T) {
+	max := Max(Column("amount"))
 	max.Alias = "max_amount"
 	sql, args, err := NewToSqlVisitor().Accept(max)
 	assert.Nil(t, err)
@@ -342,14 +342,14 @@ func TestToSqlVisitorCoalesceCol(t *testing.T) {
 }
 
 func TestToSqlVisitorExtensiveFunctionInt(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(Sum(1).Or(Count(2).And(Average(3))))
+	sql, args, err := NewToSqlVisitor().Accept(Sum(1).Or(Count(2).And(Avg(3))))
 	assert.Nil(t, err)
 	assert.Equal(t, `(SUM(?) OR (COUNT(?) AND AVG(?)))`, sql)
 	assert.Equal(t, []interface{}{1, 2, 3}, args)
 }
 
 func TestToSqlVisitorExtensiveFunctionCol(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(Sum(Column("amount")).Or(Count(Column("id")).And(Average(Column("volume")))))
+	sql, args, err := NewToSqlVisitor().Accept(Sum(Column("amount")).Or(Count(Column("id")).And(Avg(Column("volume")))))
 	assert.Nil(t, err)
 	assert.Equal(t, `(SUM("amount") OR (COUNT("id") AND AVG("volume")))`, sql)
 	assert.Empty(t, args)

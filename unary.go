@@ -5,11 +5,12 @@ type UnaryNode struct {
 	Expr interface{} // Single leaf for the Unary node.
 }
 
-type BindingNode UnaryNode           // BindingNode is a UnaryNode struct.
-type OnNode UnaryNode                // OnNode is a UnaryNode struct.
-type LimitNode UnaryNode             // LimitNode is a UnaryNode struct.
-type OffsetNode UnaryNode            // OffsetNode is a UnaryNode struct.
-type HavingNode UnaryNode            // HavingNode is a UnaryNode struct.
+type BindingNode UnaryNode // BindingNode is a UnaryNode struct.
+type OnNode UnaryNode      // OnNode is a UnaryNode struct.
+type LimitNode UnaryNode   // LimitNode is a UnaryNode struct.
+type OffsetNode UnaryNode  // OffsetNode is a UnaryNode struct.
+type HavingNode UnaryNode  // HavingNode is a UnaryNode struct.
+// TODO remove, maybe same as ColumnNode
 type UnqualifiedColumnNode UnaryNode // UnqualifiedColumnNode is a UnaryNode struct.
 type ColumnNode UnaryNode            // ColumnNode is a UnaryNode struct.
 type StarNode UnaryNode              // StarNode is a Unary node struct.
@@ -42,6 +43,7 @@ func Having(expr interface{}) (having *HavingNode) {
 	return
 }
 
+// TODO remove!
 func UnqualifiedColumn(expr interface{}) (column *UnqualifiedColumnNode) {
 	column = new(UnqualifiedColumnNode)
 	column.Expr = expr

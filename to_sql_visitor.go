@@ -145,18 +145,8 @@ func (v *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 		return visitor.VisitDeleteStatement(o.(*DeleteStatementNode), visitor)
 
 	// Function node visitors.
-	case *CountNode:
-		return visitor.VisitCount(o.(*CountNode), visitor)
-	case *AverageNode:
-		return visitor.VisitAverage(o.(*AverageNode), visitor)
-	case *SumNode:
-		return visitor.VisitSum(o.(*SumNode), visitor)
-	case *MaximumNode:
-		return visitor.VisitMaximum(o.(*MaximumNode), visitor)
-	case *MinimumNode:
-		return visitor.VisitMinimum(o.(*MinimumNode), visitor)
-	case *CoalesceNode:
-		return visitor.VisitCoalesce(o.(*CoalesceNode), visitor)
+	case *FunctionNode:
+		return visitor.VisitFunction(o.(*FunctionNode), visitor)
 
 	// Base visitor.
 	default:
@@ -765,51 +755,21 @@ func (_ *ToSqlVisitor) VisitDeleteStatement(o *DeleteStatementNode, visitor Visi
 
 // End Nary node visitors.
 
-// Begin Function node visitors.
+func (v *ToSqlVisitor) VisitFunction(o *FunctionNode, visitor VisitorInterface) (err error) {
+	visitor.AppendSqlStr(o.Name)
 
-func (v *ToSqlVisitor) VisitCount(o *CountNode, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlStr("COUNT")
-	return v.distinctExpressionsAlias((*FunctionNode)(o), visitor)
-}
-
-func (v *ToSqlVisitor) VisitAverage(o *AverageNode, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlStr("AVG")
-	return v.distinctExpressionsAlias((*FunctionNode)(o), visitor)
-}
-
-func (v *ToSqlVisitor) VisitSum(o *SumNode, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlStr("SUM")
-	return v.distinctExpressionsAlias((*FunctionNode)(o), visitor)
-}
-
-func (v *ToSqlVisitor) VisitMaximum(o *MaximumNode, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlStr("MAX")
-	return v.distinctExpressionsAlias((*FunctionNode)(o), visitor)
-}
-
-func (v *ToSqlVisitor) VisitMinimum(o *MinimumNode, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlStr("MIN")
-	return v.distinctExpressionsAlias((*FunctionNode)(o), visitor)
-}
-
-func (v *ToSqlVisitor) VisitCoalesce(o *CoalesceNode, visitor VisitorInterface) (err error) {
-	visitor.AppendSqlStr("COALESCE")
-	return v.distinctExpressionsAlias((*FunctionNode)(o), visitor)
-}
-
-func (_ *ToSqlVisitor) distinctExpressionsAlias(o *FunctionNode, visitor VisitorInterface) (err error) {
 	visitor.AppendSqlByte('(')
 
 	if o.Distinct {
 		visitor.AppendSqlStr("DISTINCT ")
 	}
 
-	if o.Expressions == nil {
+	if o.Args == nil {
 		visitor.AppendSqlByte(STAR)
 	} else {
-		if length := len(o.Expressions) - 1; 0 <= length {
-			for index, expression := range o.Expressions {
-				err = visitor.Visit(expression, visitor)
+		if length := len(o.Args) - 1; 0 <= length {
+			for index, arg := range o.Args {
+				err = visitor.Visit(arg, visitor)
 				if err != nil {
 					return
 				}
@@ -827,8 +787,6 @@ func (_ *ToSqlVisitor) distinctExpressionsAlias(o *FunctionNode, visitor Visitor
 	}
 	return
 }
-
-// End Function node visitors.
 
 // Begin Helpers.
 
