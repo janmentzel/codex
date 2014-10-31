@@ -528,7 +528,7 @@ func TestToSqlVisitorInsertStatement(t *testing.T) {
 func TestToSqlVisitorUpdateStatement(t *testing.T) {
 	relation := Table("table")
 	stmt := UpdateStatement(relation)
-	stmt.Values = []interface{}{Assignment(UnqualifiedColumn("name"), "Undo")}
+	stmt.Values = []interface{}{Assignment(Column("name"), "Undo")}
 	stmt.Limit = Limit(1)
 
 	sql, args, err := NewToSqlVisitor().Accept(stmt)
@@ -540,7 +540,7 @@ func TestToSqlVisitorUpdateStatement(t *testing.T) {
 func TestToSqlVisitorUpdateStatementTwoCols(t *testing.T) {
 	relation := Table("table")
 	stmt := UpdateStatement(relation)
-	stmt.Values = []interface{}{Assignment(UnqualifiedColumn("name"), "Undo"), Assignment(UnqualifiedColumn("enabled"), true)}
+	stmt.Values = []interface{}{Assignment(Column("name"), "Undo"), Assignment(Column("enabled"), true)}
 	stmt.Limit = Limit(1)
 
 	sql, args, err := NewToSqlVisitor().Accept(stmt)
@@ -599,13 +599,6 @@ func TestToSqlVisitorBinding(t *testing.T) {
 	sql, args, err := NewToSqlVisitor().Accept(Binding())
 	assert.Nil(t, err)
 	assert.Equal(t, `?`, sql)
-	assert.Empty(t, args)
-}
-
-func TestToSqlVisitorUnqualifiedColumn(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(UnqualifiedColumn("id"))
-	assert.Nil(t, err)
-	assert.Equal(t, `"id"`, sql)
 	assert.Empty(t, args)
 }
 

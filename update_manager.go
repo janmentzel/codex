@@ -19,11 +19,11 @@ func (self *UpdateManager) Scope(expr interface{}, args ...interface{}) {
 	self.Where(expr, args...)
 }
 
-// Set appends to the trees Values slice a list of UnqualifiedColumnNodes
+// Set appends to the trees Values slice a list of ColumnNodes
 // which are to be modified in the query.
 func (self *UpdateManager) Set(columns ...interface{}) *UpdateManager {
 	for _, column := range columns {
-		self.Tree.Values = append(self.Tree.Values, UnqualifiedColumn(column))
+		self.Tree.Values = append(self.Tree.Values, Column(column))
 	}
 
 	return self

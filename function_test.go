@@ -25,6 +25,7 @@ func TestFunction(t *testing.T) {
 	_ = f.Lte(1)
 	_ = f.Like(1)
 	_ = f.Unlike(1)
+	_ = f.As("foo")
 }
 
 func TestFunctions(t *testing.T) {

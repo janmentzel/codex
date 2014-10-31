@@ -75,8 +75,6 @@ func (v *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 		return visitor.VisitStar(o.(*StarNode), visitor)
 	case *BindingNode:
 		return visitor.VisitBinding(o.(*BindingNode), visitor)
-	case *UnqualifiedColumnNode:
-		return visitor.VisitUnqualifiedColumn(o.(*UnqualifiedColumnNode), visitor)
 	case *LimitNode:
 		return visitor.VisitLimit(o.(*LimitNode), visitor)
 	case *OffsetNode:
@@ -202,10 +200,6 @@ func (_ *ToSqlVisitor) VisitStar(o *StarNode, visitor VisitorInterface) (err err
 func (_ *ToSqlVisitor) VisitBinding(o *BindingNode, visitor VisitorInterface) (err error) {
 	visitor.AppendSqlByte(QUESTION)
 	return
-}
-
-func (_ *ToSqlVisitor) VisitUnqualifiedColumn(o *UnqualifiedColumnNode, visitor VisitorInterface) (err error) {
-	return visitor.QuoteColumnName(o.Expr, visitor)
 }
 
 func (_ *ToSqlVisitor) VisitLimit(o *LimitNode, visitor VisitorInterface) (err error) {

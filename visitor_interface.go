@@ -18,7 +18,6 @@ type VisitorInterface interface {
 	VisitColumn(*ColumnNode, VisitorInterface) error
 	VisitStar(*StarNode, VisitorInterface) error
 	VisitBinding(*BindingNode, VisitorInterface) error
-	VisitUnqualifiedColumn(*UnqualifiedColumnNode, VisitorInterface) error
 	VisitLimit(*LimitNode, VisitorInterface) error
 	VisitOffset(*OffsetNode, VisitorInterface) error
 	VisitHaving(*HavingNode, VisitorInterface) error

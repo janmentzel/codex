@@ -32,13 +32,13 @@ func (self *SelectManager) Scope(expr interface{}, args ...interface{}) {
 // Appends a projection to the current Context's Cols slice,
 // typically an AttributeNode or string.  If a string is provided, it is
 // inserted as a LiteralNode.
-func (self *SelectManager) Select(projections ...interface{}) *SelectManager {
-	for _, projection := range projections {
-		if _, ok := projection.(string); ok {
-			projection = UnqualifiedColumn(projection)
+func (self *SelectManager) Select(cols ...interface{}) *SelectManager {
+	for _, col := range cols {
+		if _, ok := col.(string); ok {
+			col = Column(col)
 		}
 
-		self.Tree.Cols = append(self.Tree.Cols, projection)
+		self.Tree.Cols = append(self.Tree.Cols, col)
 	}
 
 	return self
@@ -165,7 +165,7 @@ func (self *SelectManager) Having(expr interface{}) *SelectManager {
 // Count returns a pointer to an new SelectManager, while keeping Wheres, Havings...
 func (self *SelectManager) Count(expr interface{}) *SelectManager {
 	if str, ok := expr.(string); ok {
-		expr = UnqualifiedColumn(str)
+		expr = Column(str)
 	}
 
 	cols := make([]interface{}, 1)
