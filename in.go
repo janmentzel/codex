@@ -21,10 +21,10 @@ func (self *InNode) Not() *NotNode {
 	return Not(self)
 }
 
-// Equal factory method.
-func In(left, right interface{}) (eq *InNode) {
-	eq = new(InNode)
-	eq.Left = left
-	eq.Right = right
-	return
+// In factory method.
+func In(left interface{}, args ...interface{}) *InNode {
+	return &InNode{
+		Left:  left,
+		Right: args,
+	}
 }

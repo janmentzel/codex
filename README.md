@@ -98,8 +98,24 @@ sql, args, err := users.Where(users("id").Eq(1).Or(users("email").Eq("test@examp
 users := codex.Table("users")
 sql, args, err := users.Where(users("id").In(1,2,3,4,5)).ToSql()
 
-// sql = SELECT * FROM users WHERE users.id IN(?,?,?,?,?)
+// sql = SELECT * FROM users WHERE "users"."id" IN(?,?,?,?,?)
 // args = [1,2,3,4,5]
+```
+
+Or with literal and argument expanding `?...`
+```go
+users := codex.Table("users")
+sql, args, err := users.Where("id IN(?...)", 1, 2, 3, 4, 5).ToSql()
+
+// sql = SELECT * FROM users WHERE id IN(?,?,?,?,?)
+// args = [1,2,3,4,5]
+```
+
+PostgreSQL array operators with literal an argument expanding
+```go
+sql, args, err := codex.Table("products").Where("tags @> ARRAY[?...]", "fancy", "cheap", "retro").ToSql()
+// sql = SELECT * FROM products WHERE tags @> ARRAY[$1,$2,$3]
+// args = ["fancy","cheap","retro"]
 ```
 
 

@@ -16,47 +16,37 @@ type ColumnNode UnaryNode // ColumnNode is a UnaryNode struct.
 type StarNode UnaryNode   // StarNode is a Unary node struct.
 
 // OnNode factory method.
-func On(expr interface{}) (on *OnNode) {
-	on = new(OnNode)
-	on.Expr = expr
-	return
+func On(expr interface{}) *OnNode {
+	return &OnNode{expr}
 }
 
 // LimitNode factory method.
-func Limit(expr interface{}) (limit *LimitNode) {
-	limit = new(LimitNode)
-	limit.Expr = expr
-	return
+func Limit(expr interface{}) *LimitNode {
+	return &LimitNode{expr}
 }
 
 // OffsetNode factory method.
-func Offset(expr interface{}) (offset *OffsetNode) {
-	offset = new(OffsetNode)
-	offset.Expr = expr
-	return
+func Offset(expr interface{}) *OffsetNode {
+	return &OffsetNode{expr}
 }
 
 // HavingNode factory method.
-func Having(expr interface{}) (having *HavingNode) {
-	having = new(HavingNode)
-	having.Expr = expr
-	return
+func Having(expr interface{}) *HavingNode {
+	return &HavingNode{expr}
 }
 
 // ColumnNode factory method.
-func Column(expr interface{}) (column *ColumnNode) {
-	column = new(ColumnNode)
-	column.Expr = expr
-	return
+func Column(expr interface{}) *ColumnNode {
+	return &ColumnNode{expr}
 }
 
 // StarNode factory method.
 func Star() *StarNode {
-	return new(StarNode)
+	return &StarNode{}
 }
 
 // deprecated
 // BindingNode factory method.
 func Binding() *BindingNode {
-	return new(BindingNode)
+	return &BindingNode{}
 }

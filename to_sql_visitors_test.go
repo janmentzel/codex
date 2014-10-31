@@ -97,42 +97,42 @@ func TestToSqlVisitorLessThanOrEqual(t *testing.T) {
 }
 
 func TestToSqlVisitorInEmpty(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(In(1, []interface{}{}))
+	sql, args, err := NewToSqlVisitor().Accept(In(1))
 	assert.Nil(t, err)
 	assert.Equal(t, "? IN()", sql)
 	assert.Equal(t, []interface{}{1}, args)
 }
 
 func TestToSqlVisitorInOne(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(In(1, []interface{}{2}))
+	sql, args, err := NewToSqlVisitor().Accept(In(1, 2))
 	assert.Nil(t, err)
 	assert.Equal(t, "? IN(?)", sql)
 	assert.Equal(t, []interface{}{1, 2}, args)
 }
 
 func TestToSqlVisitorInTwo(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(In(1, []interface{}{2, 3}))
+	sql, args, err := NewToSqlVisitor().Accept(In(1, 2, 3))
 	assert.Nil(t, err)
 	assert.Equal(t, "? IN(?,?)", sql)
 	assert.Equal(t, []interface{}{1, 2, 3}, args)
 }
 
 func TestToSqlVisitorInThree(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(In(1, []interface{}{2, 3, 4}))
+	sql, args, err := NewToSqlVisitor().Accept(In(1, 2, 3, 4))
 	assert.Nil(t, err)
 	assert.Equal(t, "? IN(?,?,?)", sql)
 	assert.Equal(t, []interface{}{1, 2, 3, 4}, args)
 }
 
 func TestToSqlVisitorInColums(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(In(Column("x"), []interface{}{Column("a"), Column("b")}))
+	sql, args, err := NewToSqlVisitor().Accept(In(Column("x"), Column("a"), Column("b")))
 	assert.Nil(t, err)
 	assert.Equal(t, `"x" IN("a","b")`, sql)
 	assert.Empty(t, args)
 }
 
 func TestToSqlVisitorInLeftError(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(In(Column(".raises error"), []interface{}{Column("a")}))
+	sql, args, err := NewToSqlVisitor().Accept(In(Column(".raises error"), Column("a")))
 	assert.NotNil(t, err)
 	assert.Equal(t, `invalid column name: '.raises error'`, err.Error())
 	assert.Equal(t, `-- ERROR --`, sql)
@@ -140,7 +140,7 @@ func TestToSqlVisitorInLeftError(t *testing.T) {
 }
 
 func TestToSqlVisitorInRightError(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(In(Column("x"), []interface{}{Column(".raises error")}))
+	sql, args, err := NewToSqlVisitor().Accept(In(Column("x"), Column(".raises error")))
 	assert.NotNil(t, err)
 	assert.Equal(t, `invalid column name: '.raises error'`, err.Error())
 	assert.Equal(t, `"x" IN(-- ERROR --`, sql)
@@ -148,11 +148,10 @@ func TestToSqlVisitorInRightError(t *testing.T) {
 }
 
 func TestToSqlVisitorInError(t *testing.T) {
-	sql, args, err := NewToSqlVisitor().Accept(In(1, (interface{})("wrong")))
-	assert.NotNil(t, err)
-	assert.Equal(t, `IN() requires parameters to be []interface{} but is: "wrong"`, err.Error())
-	assert.Equal(t, "?-- ERROR --", sql)
-	assert.Equal(t, []interface{}{1}, args)
+	sql, args, err := NewToSqlVisitor().Accept(In(1, "word"))
+	assert.Nil(t, err)
+	assert.Equal(t, "? IN(?)", sql)
+	assert.Equal(t, []interface{}{1, "word"}, args)
 }
 
 func TestToSqlVisitorLike(t *testing.T) {
@@ -585,6 +584,13 @@ func TestToSqlVisitorLiteralTwoArgs(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, `id = ? AND name like ?`, sql)
 	assert.Equal(t, []interface{}{1, "Hans%"}, args)
+}
+
+func TestToSqlVisitorLiteralExanding(t *testing.T) {
+	sql, args, err := NewToSqlVisitor().Accept(Literal("id IN(?...)", 1, 2, 3))
+	assert.Nil(t, err)
+	assert.Equal(t, `id IN(?,?,?)`, sql)
+	assert.Equal(t, []interface{}{1, 2, 3}, args)
 }
 
 func TestToSqlVisitorStar(t *testing.T) {
