@@ -365,3 +365,14 @@ func TestTableDeletion(t *testing.T) {
 	assert.IsType(t, &DeleteManager{}, tab.Deletion())
 	assert.Equal(t, tab, tab.Deletion().Table())
 }
+
+func TestTableColLiteral(t *testing.T) {
+
+	psql := Dialect(POSTGRES)
+	products := psql.Table("products")
+	sql, args, err := products.Where(products.Col("tags").Literal("@> ARRAY[?...]", "fancy", "cheap", "retro")).ToSql()
+
+	assert.Nil(t, err)
+	assert.Equal(t, `SELECT "products".* FROM "products" WHERE ("products"."tags" @> ARRAY[$1,$2,$3])`, sql)
+	assert.Equal(t, []interface{}{"fancy", "cheap", "retro"}, args)
+}

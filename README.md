@@ -67,7 +67,7 @@ arguments is an array (`[]interface{}`) with one `int` value here `[123]`
 
 ```go
 users := codex.Table("users")
-sql, args, err := users.Where(users("id").Eq(123)).ToSql()
+sql, args, err := users.Where(users.Col("id").Eq(123)).ToSql()
 
 // sql = `SELECT * FROM users WHERE users.id = ?`
 // args = [123]
@@ -87,7 +87,7 @@ SELECT * FROM users WHERE users.id = ? OR users.email = ?
 
 ```go
 users := codex.Table("users")
-sql, args, err := users.Where(users("id").Eq(1).Or(users("email").Eq("test@example.com"))).ToSql()
+sql, args, err := users.Where(users.Col("id").Eq(1).Or(users.Col("email").Eq("test@example.com"))).ToSql()
 
 // sql = SELECT * FROM users WHERE users.id = ? OR users.email = ?
 // args = [123, "test@example.com"]
@@ -96,7 +96,7 @@ sql, args, err := users.Where(users("id").Eq(1).Or(users("email").Eq("test@examp
 `IN()`
 ```go
 users := codex.Table("users")
-sql, args, err := users.Where(users("id").In(1,2,3,4,5)).ToSql()
+sql, args, err := users.Where(users.Col("id").In(1,2,3,4,5)).ToSql()
 
 // sql = SELECT * FROM users WHERE "users"."id" IN(?,?,?,?,?)
 // args = [1,2,3,4,5]
@@ -111,13 +111,22 @@ sql, args, err := users.Where("id IN(?...)", 1, 2, 3, 4, 5).ToSql()
 // args = [1,2,3,4,5]
 ```
 
-PostgreSQL array operators with literal an argument expanding
+PostgreSQL array operators with literal and argument expanding
 ```go
-sql, args, err := codex.Table("products").Where("tags @> ARRAY[?...]", "fancy", "cheap", "retro").ToSql()
+psql := Dialect(POSTGRES)
+sql, args, err := psql.Table("products").Where("tags @> ARRAY[?...]", "fancy", "cheap", "retro").ToSql()
 // sql = SELECT * FROM products WHERE tags @> ARRAY[$1,$2,$3]
 // args = ["fancy","cheap","retro"]
 ```
 
+The same with expicit table:
+```go
+psql := Dialect(POSTGRES)
+products := psql.Table("products")
+sql, args, err := products.Where(products.Col("tags").Literal("@> ARRAY[?...]", "fancy", "cheap", "retro")).ToSql()
+// sql = SELECT "products".* FROM "products" WHERE ("products"."tags" @> ARRAY[$1,$2,$3])
+// args = ["fancy","cheap","retro"]
+```
 
 #### JOIN
 

@@ -6,14 +6,15 @@ type BinaryNode struct {
 	Right interface{} // Binary nodes right leaf.
 }
 
-type AsNode BinaryNode         // AsNode is a BinaryNode struct.
-type BetweenNode BinaryNode    // BetweenNode is a BinaryNode struct.
-type InnerJoinNode BinaryNode  // InnerJoinNode is a BinaryNode struct.
-type OuterJoinNode BinaryNode  // OuterJoinNode is a BinaryNode struct.
-type AssignmentNode BinaryNode // AssignmentNode is a BinaryNode struct.
-type UnionNode BinaryNode      // UnionNode is a BinaryNode struct.
-type IntersectNode BinaryNode  // IntersectNode is a BinaryNode struct.
-type ExceptNode BinaryNode     // ExceptNode is a BinaryNode struct.
+type AsNode BinaryNode            // AsNode is a BinaryNode struct.
+type BetweenNode BinaryNode       // BetweenNode is a BinaryNode struct.
+type InnerJoinNode BinaryNode     // InnerJoinNode is a BinaryNode struct.
+type OuterJoinNode BinaryNode     // OuterJoinNode is a BinaryNode struct.
+type AssignmentNode BinaryNode    // AssignmentNode is a BinaryNode struct.
+type UnionNode BinaryNode         // UnionNode is a BinaryNode struct.
+type IntersectNode BinaryNode     // IntersectNode is a BinaryNode struct.
+type ExceptNode BinaryNode        // ExceptNode is a BinaryNode struct.
+type BinaryLiteralNode BinaryNode // see AttributeNode.Literal() and table_test.go TestTableColLiteral()
 
 // AsNode factory method.
 func As(left, right interface{}) (as *AsNode) {

@@ -93,6 +93,15 @@ func (self *AttributeNode) As(alias interface{}) *AsNode {
 	return As(self, alias)
 }
 
+// Returns and Descending node containing a reference to the
+// attribute
+func (self *AttributeNode) Literal(sql string, args ...interface{}) *BinaryLiteralNode {
+	return &BinaryLiteralNode{
+		Left:  self,
+		Right: Literal(sql, args...),
+	}
+}
+
 // AttributeNode factory method.
 func Attribute(name interface{}, relation *TableNode) (attribute *AttributeNode) {
 	attribute = new(AttributeNode)

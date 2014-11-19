@@ -45,8 +45,9 @@ type VisitorInterface interface {
 	VisitJoinSource(*JoinSourceNode, VisitorInterface) error
 	VisitValues(*ValuesNode, VisitorInterface) error
 	VisitUnion(*UnionNode, VisitorInterface) error
-	VisitExcept(*ExceptNode, VisitorInterface) error
 	VisitIntersect(*IntersectNode, VisitorInterface) error
+	VisitExcept(*ExceptNode, VisitorInterface) error
+	VisitBinaryLiteral(*BinaryLiteralNode, VisitorInterface) error
 
 	// Nary node visitors.
 	VisitSelectCore(*SelectStatementNode, VisitorInterface) error

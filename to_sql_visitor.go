@@ -131,6 +131,8 @@ func (v *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 		return visitor.VisitIntersect(o.(*IntersectNode), visitor)
 	case *ExceptNode:
 		return visitor.VisitExcept(o.(*ExceptNode), visitor)
+	case *BinaryLiteralNode:
+		return visitor.VisitBinaryLiteral(o.(*BinaryLiteralNode), visitor)
 
 	// Nary node visitors.
 	case *SelectStatementNode:
@@ -512,6 +514,18 @@ func (_ *ToSqlVisitor) VisitExcept(o *ExceptNode, visitor VisitorInterface) (err
 	err = visitor.Visit(o.Right, visitor)
 
 	visitor.AppendSqlByte(')')
+	return
+}
+
+func (_ *ToSqlVisitor) VisitBinaryLiteral(o *BinaryLiteralNode, visitor VisitorInterface) (err error) {
+	err = visitor.Visit(o.Left, visitor)
+	if err != nil {
+		return
+	}
+	visitor.AppendSqlByte(SPACE)
+
+	err = visitor.Visit(o.Right, visitor)
+
 	return
 }
 
