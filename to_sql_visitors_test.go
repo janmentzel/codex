@@ -691,6 +691,14 @@ func TestToSqlVisitorQuoteTableNameDolar(t *testing.T) {
 	assert.Equal(t, `"foo$"`, v.String())
 }
 
+func TestToSqlVisitorQuoteTableNameEmptyReturnsError(t *testing.T) {
+	v := NewToSqlVisitor()
+	err := v.QuoteTableName(``, v)
+	assert.NotNil(t, err)
+	assert.Equal(t, "invalid table name: ''", err.Error())
+	assert.Equal(t, `-- ERROR --`, v.String())
+}
+
 func TestToSqlVisitorQuoteTableNameWithQuoteReturnsError(t *testing.T) {
 	v := NewToSqlVisitor()
 	err := v.QuoteTableName(`foo" baaam`, v)
