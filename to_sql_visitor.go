@@ -144,6 +144,11 @@ func (v *ToSqlVisitor) Visit(o interface{}, visitor VisitorInterface) error {
 	case *DeleteStatementNode:
 		return visitor.VisitDeleteStatement(o.(*DeleteStatementNode), visitor)
 
+	// subselects see TestToSqlVisitorSubSelect
+	case *SelectManager:
+		mgr, _ := o.(*SelectManager)
+		return visitor.Visit(Grouping(mgr.Tree), visitor)
+
 	// Function node visitors.
 	case *FunctionNode:
 		return visitor.VisitFunction(o.(*FunctionNode), visitor)
@@ -553,10 +558,12 @@ func (_ *ToSqlVisitor) VisitSelectCore(o *SelectStatementNode, visitor VisitorIn
 		}
 	}
 
-	visitor.AppendSqlStr(FROM)
-	err = visitor.Visit(o.Source, visitor)
-	if err != nil {
-		return
+	if o.Source.Left.Name != "" {
+		visitor.AppendSqlStr(FROM)
+		err = visitor.Visit(o.Source, visitor)
+		if err != nil {
+			return
+		}
 	}
 
 	if length := len(o.Wheres) - 1; 0 <= length {

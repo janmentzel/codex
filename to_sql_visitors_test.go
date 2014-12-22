@@ -514,6 +514,17 @@ func TestToSqlVisitorExcept(t *testing.T) {
 	assert.Empty(t, args)
 }
 
+func TestToSqlVisitorSubSelect(t *testing.T) {
+	subTab := Table("sub_table")
+	sub := subTab.Select(Sum(Column("s"))).Group(Column("id"))
+	one := Table("").Select(Coalesce(sub, Literal("0")).As("total"))
+
+	sql, args, err := NewToSqlVisitor().Accept(one)
+	assert.Nil(t, err)
+	assert.Equal(t, `(SELECT COALESCE((SELECT SUM("s") FROM "sub_table" GROUP BY "id"),0) AS "total")`, sql)
+	assert.Empty(t, args)
+}
+
 func TestToSqlVisitorInsertStatement(t *testing.T) {
 	relation := Table("table")
 	stmt := InsertStatement(relation)
